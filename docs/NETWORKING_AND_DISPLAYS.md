@@ -1,28 +1,28 @@
-# Networking and External Displays
+# 网络和外部显示器
 
-## DeX Mode — External Desktop
+## DeX 模式 — 外部桌面
 
-LinuxRunner can present its Linux desktop on a compatible external screen and use the phone as a control surface. This is LinuxRunner's runtime and iOS display integration, not Android or Samsung DeX.
+LinuxRunner 可以在兼容的外部屏幕上显示其 Linux 桌面，并使用手机作为控制界面。这是 LinuxRunner 的运行时和 iOS 显示集成，不是 Android 或三星 DeX。
 
-1. Connect a display using a cable/adapter supported by the device. For wireless output, connect both ends to the same Wi-Fi and use **iOS Control Center → Screen Mirroring** to choose an AirPlay receiver; enter any receiver passcode in iOS.
-2. Enable **Settings → Devices → External Desktop Output**. The page includes **Connect Wirelessly with AirPlay…** under **External Monitor · USB-C or AirPlay**.
-3. Use **Home → Open Desktop** or **Resume Desktop**.
-4. Open **Desktop → Use iPhone as Trackpad** in the viewer. The action enables external output and waits for a separate scene and a desktop frame. It can start/reconnect the session when needed.
-5. While waiting, choose **Cancel Trackpad Connection** to cancel. While active, **Show Desktop on This Device** returns the desktop to the phone's viewer.
+1. 使用设备支持的线缆/适配器连接显示器。对于无线输出，将两端连接到同一 Wi-Fi 并使用 **iOS 控制中心 → 屏幕镜像** 选择 AirPlay 接收器；在 iOS 中输入任何接收器密码。
+2. 启用 **设置 → 设备 → 外部桌面输出**。该页面在 **外部显示器 · USB-C 或 AirPlay** 下包括 **使用 AirPlay 无线连接…**。
+3. 使用 **主页 → 打开桌面** 或 **恢复桌面**。
+4. 在查看器中打开 **桌面 → 使用 iPhone 作为触控板**。该操作启用外部输出并等待单独的场景和桌面帧。它可以在需要时启动/重新连接会话。
+5. 等待时，选择 **取消触控板连接** 来取消。活动时，**在此设备上显示桌面** 将桌面返回手机的查看器。
 
-The trackpad supports slide-to-move, tap-to-click, hold-and-slide dragging, two-finger scrolling and two-finger right click. The on-screen keyboard/modifier controls remain available. Supported hardware keyboards, mice and trackpads use the input supplied by iOS/iPadOS. Sensitivity controls are under **Desktop Settings… → Input**.
+触控板支持滑动移动、点击单击、按住滑动拖动、两指滚动和两指右键单击。屏幕键盘/修饰控件仍然可用。支持的硬件键盘、鼠标和触控板使用 iOS/iPadOS 提供的输入。灵敏度控件在 **桌面设置… → 输入** 下。
 
-### Output Behavior and Limits
+### 输出行为和限制
 
-A separate external scene is required for the display to show the desktop while the phone shows independent controls. If iOS supplies plain mirroring, both screens show the same view. Receiver compatibility, latency and resolution depend on the platform and connection; Miracast-only receivers are unsupported. The supplied external-display photo demonstrates the workflow, not qualification of every receiver.
+需要单独的外部场景才能使显示器显示桌面而手机显示独立控件。如果 iOS 提供纯镜像，两个屏幕显示相同视图。接收器兼容性、延迟和分辨率取决于平台和连接；不支持仅 Miracast 的接收器。提供的外部显示器照片演示了工作流程，不是每个接收器的认证。
 
-**Desktop → Desktop Settings… → Display** provides Fit, Actual Size, Full Screen, external-output status and **Resolution & Viewer Preferences**. Scaling changes immediately; guest resolution changes apply on the next desktop start. Save work before restarting. The default is landscape 960 × 540. Reported iOS screen modes/maximum refresh are host capabilities, not measured Linux FPS. LinuxRunner displays one Linux output rather than an extended multi-monitor guest desktop.
+**桌面 → 桌面设置… → 显示** 提供适应、实际大小、全屏、外部输出状态和 **分辨率与查看器偏好**。缩放立即更改；客户机分辨率更改在下次桌面启动时应用。重启前保存工作。默认是横屏 960 × 540。报告的 iOS 屏幕模式/最大刷新率是主机功能，不是测量的 Linux FPS。LinuxRunner 显示一个 Linux 输出而不是扩展的多显示器客户机桌面。
 
-**Done** detaches the viewer while retaining the session. iOS suspension/termination still applies. Reconnect rather than creating another desktop if the original is alive. [Desktop controls](DESKTOP_CONTROLS.md)
+**完成** 分离查看器同时保留会话。iOS 暂停/终止仍然适用。如果原始会话存活，重新连接而不是创建另一个桌面。[桌面控件](DESKTOP_CONTROLS.md)
 
-## Linux Networking
+## Linux 网络
 
-LinuxRunner translates Linux networking calls onto host APIs. Build 900 improves host-derived address/interface visibility and routing information, including IPv4/IPv6 netlink/proc views. Inspect the native view at **Settings → Network** and compare from a Linux terminal:
+LinuxRunner 将 Linux 网络调用翻译到主机 API。构建 900 改进了主机派生的地址/接口可见性和路由信息，包括 IPv4/IPv6 netlink/proc 视图。在 **设置 → 网络** 检查原生视图并从 Linux 终端比较：
 
 ```sh
 ip addr
@@ -30,12 +30,12 @@ ip link
 ip route
 ```
 
-Routes reflect available host routing information, not a separately controlled Linux network namespace. VPNs and platform policy can affect what is visible. Available host-compatible interfaces can carry connections through iOS, without granting Linux ownership of Ethernet/USB/radio hardware.
+路由反映可用的主机路由信息，不是单独控制的 Linux 网络命名空间。VPN 和平台策略可以影响可见内容。可用的主机兼容接口可以通过 iOS 承载连接，而不授予 Linux 对以太网/USB/无线电硬件的所有权。
 
-Bluetooth networking, unrestricted raw packet capture, radio scanning and host-interface/route administration are unsupported. Bluetooth keyboards/mice are a separate platform input feature.
+不支持蓝牙网络、不受限制的原始数据包捕获、无线电扫描和主机接口/路由管理。蓝牙键盘/鼠标是单独的平台输入功能。
 
-### Diagnose a Connection
+### 诊断连接
 
-Check that the device itself can reach the intended network and that LinuxRunner has any requested local-network permission in system settings. Inspect **Settings → Network**, note the current transport and compare Linux query output. DNS, VPN and captive portal behavior may differ from package-server failures. Preserve the first error and avoid disabling package signature verification.
+检查设备本身是否可以到达预期的网络，以及 LinuxRunner 在系统设置中是否具有任何请求的本地网络权限。检查 **设置 → 网络**，注意当前传输并比较 Linux 查询输出。DNS、VPN 和强制门户行为可能与软件包服务器失败不同。保留第一个错误，避免禁用软件包签名验证。
 
-Interface counters are host-provided counters, not LinuxRunner-only traffic or a throughput benchmark. Address/route output can contain private network information; review it before attaching to an issue. [Troubleshooting](TROUBLESHOOTING.md)
+接口计数器是主机提供的计数器，不是仅 LinuxRunner 流量或吞吐量基准测试。地址/路由输出可能包含私人网络信息；附加到问题之前审查它。[故障排除](TROUBLESHOOTING.md)

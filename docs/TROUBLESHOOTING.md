@@ -1,119 +1,119 @@
-# Troubleshooting
+# 故障排除
 
-Preserve your environment first. Do not uninstall LinuxRunner, delete its root filesystem, remove package locks or disable package signatures as an initial repair step. Save Linux documents before stopping a desktop. Back up important files before package repair or upgrades.
+首先保护你的环境。不要将卸载 LinuxRunner、删除其根文件系统、移除软件包锁或禁用软件包签名作为初始修复步骤。在停止桌面之前保存 Linux 文档。在软件包修复或升级之前备份重要文件。
 
-## Find Repair and Diagnostic Controls
+## 查找修复和诊断控件
 
-For the active environment, open **Home → App Manager**. The equivalent path is **Distributions → <environment> → Install, Manage and Repair Applications**.
+对于活动环境，打开 **主页 → 应用程序管理器**。等效路径是 **发行版 → <环境> → 安装、管理和修复应用程序**。
 
-In **Repair Center**:
+在 **修复中心**：
 
-1. Run **Diagnose Package State** and **Check Dependencies** first.
-2. Review the terminal output.
-3. If needed, select **Check / Repair Package State** and review its confirmation. Debian also has **Configure Interrupted Debian Packages**.
+1. 首先运行 **诊断软件包状态** 和 **检查依赖**。
+2. 查看终端输出。
+3. 如果需要，选择 **检查/修复软件包状态** 并查看其确认。Debian 还有 **配置中断的 Debian 软件包**。
 
-Repair executes distribution package tools and maintainer scripts. Its metadata checkpoint is not a complete filesystem backup or automatic rollback.
+修复执行发行版软件包工具和维护者脚本。其元数据检查点不是完整的文件系统备份或自动回滚。
 
-## Distribution Installation Fails or Stops
+## 发行版安装失败或停止
 
-Keep LinuxRunner in the foreground and read the current progress/error text. Check network access, device date/time and available storage. Download progress and package configuration are separate phases; there is no fixed completion time.
+保持 LinuxRunner 在前台并阅读当前进度/错误文本。检查网络访问、设备日期/时间和可用存储。下载进度和软件包配置是独立的阶段；没有固定的完成时间。
 
-After Debian/Arch reports a failure, use **Try Again** in the same setup workflow. Arch retains verified downloads for retry. If you cancel, wait for cancellation to finish before starting another operation. Avoid installing another environment over a partially configured one merely to retry.
+在 Debian/Arch 报告失败后，在同一设置工作流中使用 **重试**。Arch 保留验证的下载用于重试。如果你取消，等待取消完成后再开始另一个操作。避免在部分配置的环境上安装另一个环境来重试。
 
-If **Restart LinuxRunner** is displayed, fully close the app from the app switcher and reopen it. Existing environment selection and account setup resume. Use **Configure <environment name>** for an existing root; **Install Another Environment** creates a separate one.
+如果显示 **重启 LinuxRunner**，从应用切换器完全关闭应用并重新打开。现有环境选择和账户设置恢复。对现有根使用 **配置 <环境名称>**；**安装另一个环境** 创建单独的环境。
 
-If first-start initialization reports no progress or an error, export diagnostics, reopen the app and retry the indicated operation. Do not repeatedly force-close an active package transaction.
+如果首次启动初始化报告没有进度或错误，导出诊断，重新打开应用并重试指示的操作。不要反复强制关闭活动的软件包事务。
 
-## Package-Manager Errors or Interrupted Installation
+## 软件包管理器错误或中断的安装
 
-Only one modifying package operation should run in an environment. If a lock is active, allow the other operation to finish; never delete a lock simply because it exists.
+一个环境中只应运行一个修改软件包的操作。如果锁处于活动状态，让另一个操作完成；永远不要仅仅因为锁存在就删除它。
 
-**Debian:** use **Configure Interrupted Debian Packages**, then diagnosis/dependency checks. **Check / Repair Package State** can request dependency repair; review changes before confirming.
+**Debian：** 使用 **配置中断的 Debian 软件包**，然后诊断/依赖检查。**检查/修复软件包状态** 可以请求依赖修复；在确认之前查看更改。
 
-**Arch:** use diagnosis followed by the managed repair action. It checks package state and can restore supported damaged ownership records using validated, signed cached packages. Recovery may correctly stop if an archive, signature or ownership check fails. Keep the first error and export the report; do not force overwrite files, edit pacman's local database or bypass signatures. Arch package installation uses a consistent `pacman -Syu` transaction; avoid partial upgrades.
+**Arch：** 使用诊断后跟管理的修复操作。它检查软件包状态，可以使用经验证的签名缓存软件包恢复受支持的损坏所有权记录。如果归档、签名或所有权检查失败，恢复可能正确停止。保留第一个错误并导出报告；不要强制覆盖文件、编辑 pacman 的本地数据库或绕过签名。Arch 软件包安装使用一致的 `pacman -Syu` 事务；避免部分升级。
 
-**Alpine:** run diagnosis and dependency checks before managed repair. Repair can run `apk fix`; review the operation. Package availability alone does not establish runtime compatibility.
+**Alpine：** 在管理的修复之前运行诊断和依赖检查。修复可以运行 `apk fix`；查看操作。仅软件包可用性不能确定运行时兼容性。
 
-## Desktop Installation Problems or Missing Dependencies
+## 桌面安装问题或缺少依赖
 
-Use **Set Up Linux… → Install Desktop Components**, or **Desktop → Desktop Settings… → Desktop Session → Install / Repair Desktop Components**. Keep the app open during installation. **Details** and **GUI Logs** show the failing component/package step.
+使用 **设置 Linux… → 安装桌面组件**，或 **桌面 → 桌面设置… → 桌面会话 → 安装/修复桌面组件**。安装期间保持应用打开。**详情** 和 **GUI 日志** 显示失败的组件/软件包步骤。
 
-Try LinuxRunner Desktop or LXQt before a more demanding desktop. **Settings → Desktop Environment** offers the current installation controls. Arch Plasma is not validated; Debian Enlightenment is disabled because it stops at the splash screen. Alpine's desktop path has less coverage.
+在要求更高的桌面之前尝试 LinuxRunner 桌面或 LXQt。**设置 → 桌面环境** 提供当前的安装控件。Arch Plasma 未验证；Debian Enlightenment 被禁用，因为它停在启动画面。Alpine 的桌面路径覆盖较少。
 
-If dependencies are missing, use **Check Dependencies** and the package manager's supported repair flow. Do not download unrelated libraries from arbitrary sites or globally replace system libraries.
+如果缺少依赖，使用 **检查依赖** 和软件包管理器受支持的修复流程。不要从任意站点下载不相关的库或全局替换系统库。
 
-## A Black Desktop, Missing Panel or Missing Wallpaper
+## 黑色桌面、缺少面板或缺少壁纸
 
-Distinguish a black Linux desktop from the entire native app failing to open. An X11 window manager can be alive even if the panel or desktop surface has failed.
+区分黑色 Linux 桌面和整个原生应用无法打开。即使面板或桌面界面失败，X11 窗口管理器也可能存活。
 
-1. Read the startup status and **Details** before restarting.
-2. Try **Desktop → Start / Reconnect Desktop**, or **Sessions → Resume Desktop**, if the session is alive.
-3. If only a panel/surface failed, open applications may still work. Components restart a bounded number of times; repeated failures are reported as degraded rather than silently marked ready.
-4. Save work, then use **Stop Desktop** and start it again if reconnecting does not resolve the issue. Stopping closes applications in that desktop.
-5. Export the report with `panel.log`, `desktop.log` and Qt diagnostics when present.
+1. 在重启之前阅读启动状态和 **详情**。
+2. 如果会话存活，尝试 **桌面 → 启动/重新连接桌面**，或 **会话 → 恢复桌面**。
+3. 如果只有面板/界面失败，打开的应用程序可能仍然工作。组件重启有限次数；重复失败报告为降级而不是静默标记为就绪。
+4. 保存工作，然后使用 **停止桌面** 并再次启动，如果重新连接不能解决问题。停止关闭该桌面中的应用程序。
+5. 导出包含 `panel.log`、`desktop.log` 和 Qt 诊断（如存在）的报告。
 
-Do not hardcode a display number, run `xhost +` or replace X11 authorization files. Managed launchers supply the current user's authenticated display context.
+不要硬编码显示号、运行 `xhost +` 或替换 X11 授权文件。管理的启动器提供当前用户的认证显示上下文。
 
-## A Graphical Application Crashes
+## 图形应用程序崩溃
 
-Check [Compatibility](COMPATIBILITY.md). Telegram login, messaging and calls have been tested on Arch; report any regression with the exact package and build. Arch GTK/glycin applications still have write-seal compatibility gaps; a Qt desktop does not fix every GTK application.
+检查 [兼容性](COMPATIBILITY.md)。Telegram 登录、消息和通话已在 Arch 上测试；使用确切的软件包和构建报告任何回归。Arch GTK/glycin 应用程序仍有写密封兼容性差距；Qt 桌面不能修复每个 GTK 应用程序。
 
-Launch through **Home → Applications** with a regular Linux user. If using a shell, open a fresh terminal after starting Desktop so it can adopt the current session context. A shell opened earlier cannot inherit later environment changes.
+通过 **主页 → 应用程序** 使用普通 Linux 用户启动。如果使用 shell，在启动桌面后打开新终端，以便它可以采用当前会话上下文。较早打开的 shell 不能继承后来的环境更改。
 
-For a problem specific to Metal, select **Settings → Graphics → Linux GPU Device → GPU → Software Rendering**, then fully close/reopen LinuxRunner. Record **Active renderer** before and after. The separate Linux Applications Renderer control does not select the virtual GPU. Close other heavy applications if memory is tight. Record the program/package version, exact action and whether the whole app closed or just the Linux program.
+对于特定于 Metal 的问题，选择 **设置 → 图形 → Linux GPU 设备 → GPU → 软件渲染**，然后完全关闭/重新打开 LinuxRunner。记录之前和之后的 **活动渲染器**。单独的 Linux 应用程序渲染器控件不选择虚拟 GPU。如果内存紧张，关闭其他重型应用程序。记录程序/软件包版本、确切操作以及是整个应用关闭还是仅 Linux 程序关闭。
 
-## Terminal Does Not Start or Uses the Wrong Environment
+## 终端无法启动或使用错误的环境
 
-Check Home's runtime status. Use **Start Linux Runtime** if offered. Only the active environment can open a terminal. To switch, use **Distributions → <environment> → Use on Next Launch**, fully close LinuxRunner and reopen it.
+检查主页的运行时状态。如果提供，使用 **启动 Linux 运行时**。只有活动环境可以打开终端。要切换，使用 **发行版 → <环境> → 下次启动时使用**，完全关闭 LinuxRunner 并重新打开。
 
-Check the selected account under **Settings → Linux Users**. After opening a shell, use `id` and `pwd` to check the account/home. Do not reinstall the distribution just because a terminal failed; preserve the error and export diagnostics.
+检查 **设置 → Linux 用户** 下选择的账户。打开 shell 后，使用 `id` 和 `pwd` 检查账户/主目录。不要仅仅因为终端失败就重新安装发行版；保留错误并导出诊断。
 
-## Existing Desktop Sessions and Reconnection
+## 现有桌面会话和重新连接
 
-**Done** detaches the viewer while retaining the live session. **Resume Desktop** reconnects to it. **Stop Desktop** ends that desktop and its applications. Switching the default user requires saving work and stopping/restarting the desktop before applications use the new account.
+**完成** 分离查看器同时保留活动会话。**恢复桌面** 重新连接到它。**停止桌面** 结束该桌面及其应用程序。切换默认用户需要保存工作并在应用程序使用新账户之前停止/重启桌面。
 
-iOS/iPadOS may suspend or terminate LinuxRunner. Keep Screen Awake prevents idle locking in the foreground; it does not prevent termination or preserve Linux processes after the app exits. Reopen the app and desktop; saved files should remain in the same storage container.
+iOS/iPadOS 可能暂停或终止 LinuxRunner。保持屏幕唤醒防止前台空闲锁定；它不防止终止或在应用退出后保留 Linux 进程。重新打开应用和桌面；保存的文件应保留在同一存储容器中。
 
-## Input or iPad Display Problems
+## 输入或 iPad 显示问题
 
-Try **Fit to Screen** and **Actual Size** for viewer scaling. **Desktop Settings… → Display → Resolution & Viewer Preferences** chooses a Linux resolution when a new session starts; save work before restarting. Use the on-screen keyboard/modifier bar to distinguish accessory input problems from Linux application behavior.
+尝试 **适应屏幕** 和 **实际大小** 进行查看器缩放。**桌面设置… → 显示 → 分辨率与查看器偏好** 在新会话启动时选择 Linux 分辨率；重启前保存工作。使用屏幕键盘/修饰栏区分附件输入问题和 Linux 应用程序行为。
 
-For pointer issues, inspect **Settings → Devices** and its mouse settings. Report whether input came from touch, mouse, trackpad or a hardware keyboard. iPad support has been physically tested. Include model, iPadOS version, orientation and window size when reporting a layout problem.
+对于指针问题，检查 **设置 → 设备** 及其鼠标设置。报告输入来自触摸、鼠标、触控板还是硬件键盘。iPad 支持已经物理测试。报告布局问题时包括型号、iPadOS 版本、方向和窗口大小。
 
-## The Installer Says the IPA Is Invalid
+## 安装程序说 IPA 无效
 
-Download the actual IPA from the release's **Assets**, not a saved preview/web page. Compare file size and SHA-256 before signing. A mismatch can explain errors such as “not a ZIP”, “could not find EOCD” or “invalid IPA”. If the checksum matches, report the exact tool/version and error; static archive validation cannot guarantee every signing tool accepts the package. [Installation](INSTALLATION.md)
+从版本的 **资源** 下载实际的 IPA，不是保存的预览/网页。在签名之前比较文件大小和 SHA-256。不匹配可以解释诸如"不是 ZIP"、"找不到 EOCD"或"无效 IPA"等错误。如果校验和匹配，报告确切的工具/版本和错误；静态归档验证不能保证每个签名工具接受该包。[安装](INSTALLATION.md)
 
-## LinuxRunner Opens to a Black Screen
+## LinuxRunner 打开黑屏
 
-An earlier report concerns iPhone 11/iOS 17; its resolution is not confirmed. Report device/OS and app version/build. If the interface is unavailable, inspect the platform's **Settings → Privacy & Security → Analytics & Improvements → Analytics Data** for LinuxRunner crash/hang entries. Review their contents before sharing. A configured deployment target does not prove all OS versions work.
+早期报告涉及 iPhone 11/iOS 17；其解决方案未确认。报告设备/操作系统和应用版本/构建。如果界面不可用，检查平台的 **设置 → 隐私与安全 → 分析与改进 → 分析数据** 中的 LinuxRunner 崩溃/挂起条目。在分享之前查看其内容。配置部署目标不证明所有操作系统版本都工作。
 
-## Environments Seem Missing After Re-signing
+## 重新签名后环境似乎丢失
 
-The app may use an App Group container or private application storage, depending on its signature. A changed bundle identifier, App Group setting or signing/container configuration can make old environments inaccessible. Preserve the installed app and its backups while investigating. Reinstalling with the original identity/configuration may restore access, but do not promise recovery after deletion or data loss.
+应用可能使用 App Group 容器或私有应用存储，取决于其签名。更改的包标识符、App Group 设置或签名/容器配置可以使旧环境不可访问。在调查时保留已安装的应用及其备份。使用原始身份/配置重新安装可能恢复访问，但不要承诺删除或数据丢失后的恢复。
 
-## Collect Logs and Report a Problem
+## 收集日志并报告问题
 
-- **Settings → Advanced → Export Open Desktop Report** collects startup/session and related diagnostics.
-- **Home → App Manager → Diagnostics → Export Diagnostic Report** provides package/runtime information.
-- **Home → View Crash Reports** shows recorded Linux application crashes.
+- **设置 → 高级 → 导出打开桌面报告** 收集启动/会话和相关诊断。
+- **主页 → 应用程序管理器 → 诊断 → 导出诊断报告** 提供软件包/运行时信息。
+- **主页 → 查看崩溃报告** 显示记录的 Linux 应用程序崩溃。
 
-Review exported files before sharing. Automatic redaction is useful but cannot guarantee that logs, filenames, screenshots or program output contain no private information. Remove messages, account identifiers, addresses, tokens and sensitive paths. Keep the original privately if further diagnosis is needed.
+在分享之前查看导出的文件。自动编辑有用，但不能保证日志、文件名、截图或程序输出不包含私人信息。移除消息、账户标识符、地址、令牌和敏感路径。如果需要进一步诊断，私下保留原件。
 
-Open a [GitHub issue](https://github.com/mxhm11cr/LinuxRunner/issues/new/choose) with device/OS, app version/build/source identity, distribution, package version, desktop/graphics mode, steps, expected/actual behavior and the first relevant error. State whether an app merely launched or was actually used. Use the [private security channel](../SECURITY.md) for vulnerabilities.
+打开 [GitHub 问题](https://github.com/mxhm11cr/LinuxRunner/issues/new/choose)，包括设备/操作系统、应用版本/构建/来源身份、发行版、软件包版本、桌面/图形模式、步骤、预期/实际行为和第一个相关错误。说明应用只是启动还是实际使用。对漏洞使用 [私有安全渠道](../SECURITY.md)。
 
-## Hyprland or Wayfire Startup Fails
+## Hyprland 或 Wayfire 启动失败
 
-Hyprland is experimental, Arch-only and requires at least 8 GB RAM; Metal is recommended. If the first launch reports an error, select **Retry** when offered. Check that desktop package installation completed. Save work before stopping/restarting a session; try LinuxRunner Desktop or LXQt if failures persist. Do not remove the root filesystem. Include the selected environment, renderer, memory and first compositor error in the report.
+Hyprland 是实验性的，仅 Arch，需要至少 8 GB 内存；推荐 Metal。如果首次启动报告错误，提供时选择 **重试**。检查桌面软件包安装是否完成。在停止/重启会话之前保存工作；如果失败持续，尝试 LinuxRunner 桌面或 LXQt。不要移除根文件系统。在报告中包括所选环境、渲染器、内存和第一个合成器错误。
 
-## Metal Is Selected but Rendering Is Still Software
+## Metal 已选择但渲染仍然是软件
 
-Use **Settings → Graphics → Linux GPU Device → GPU → Metal GPU · Experimental**, then fully close and reopen the app. Check **Active renderer** and its reason. Automatic uses software in Build 900. A Metal viewer/presentation label alone does not mean the Linux application used GPU rendering. A workload can use an unsupported API or fall back even with Metal selected.
+使用 **设置 → 图形 → Linux GPU 设备 → GPU → Metal GPU · 实验性**，然后完全关闭并重新打开应用。检查 **活动渲染器** 及其原因。自动在构建 900 中使用软件。仅 Metal 查看器/呈现标签不意味着 Linux 应用程序使用了 GPU 渲染。工作负载可能使用不受支持的 API 或即使选择了 Metal 也回退。
 
-## JIT Is Unavailable
+## JIT 不可用
 
-JIT is optional. Keep using Interpreter if iOS refuses executable memory. Under **Settings → Advanced**, enable **Developer Mode**, then inspect **Execution Engine / StikDebug → JIT Status** and the running backend. Debugger attachment and a JIT-capable build alone do not prove translated blocks are running. Signing, OS and activation-method restrictions apply; do not remove the app or its Linux data to obtain JIT.
+JIT 是可选的。如果 iOS 拒绝可执行内存，继续使用解释器。在 **设置 → 高级** 下，启用 **开发者模式**，然后检查 **执行引擎 / StikDebug → JIT 状态** 和运行的后端。调试器附加和支持 JIT 的构建本身不能证明翻译的块正在运行。签名、操作系统和激活方法限制适用；不要移除应用或其 Linux 数据以获得 JIT。
 
-## External Display Shows the Wrong View
+## 外部显示器显示错误的视图
 
-Enable **Settings → Devices → External Desktop Output**, connect a supported display/receiver and use **Desktop → Use iPhone as Trackpad**. A separate iOS external scene and the first desktop frame are required. Plain mirroring shows the phone's view and cannot provide independent controls. Cancel a waiting trackpad connection if needed, then check the receiver/platform connection. [External display guide](NETWORKING_AND_DISPLAYS.md)
+启用 **设置 → 设备 → 外部桌面输出**，连接受支持的显示器/接收器并使用 **桌面 → 使用 iPhone 作为触控板**。需要单独的 iOS 外部场景和第一个桌面帧。纯镜像显示手机的视图，不能提供独立控件。如果需要，取消等待的触控板连接，然后检查接收器/平台连接。[外部显示器指南](NETWORKING_AND_DISPLAYS.md)

@@ -103,13 +103,15 @@ private final class InstallCancellation: @unchecked Sendable {
                 message = "Assembling verified Debian packages"
                 let assemblySpace = try temporary.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage ?? 0
                 DiagnosticCenter.installer(2, message: "stage=assemble package_count=\(paths.count) output=\(archive.path) available_bytes=\(assemblySpace) cancelled=\(token.check())")
+                let pathsCopy = paths
                 try await Task.detached(priority: .utility) {
-                    try LRRuntimeBridge.assembleDebianPackages(paths, toArchive: archive, progress: { value in Task { @MainActor in self.fraction = 0.55 + value * 0.2 } }, cancel: { token.check() })
+                    try LRRuntimeBridge.assembleDebianPackages(pathsCopy, toArchive: archive, progress: { value in Task { @MainActor in self.fraction = 0.55 + value * 0.2 } }, cancel: { token.check() })
                 }.value
                 if token.check() { throw CancellationError() }
                 message = "Importing isolated Debian filesystem"
                 DiagnosticCenter.installer(2, message: "stage=fakefs_import root=\(root) output=\(archive.path) cancelled=\(token.check())")
                 let sha = try Self.sha256(archive)
+                let pathsCopy = paths
                 try await Task.detached(priority: .utility) {
                     try LRRuntimeBridge.importVerifiedEnvironment(archive, root: root, sha256: sha, progress: { value, _ in Task { @MainActor in self.fraction = 0.75 + value * 0.25 } }, cancel: { token.check() })
                 }.value
