@@ -1,19 +1,56 @@
-# Contributing to LinuxRunner
+# 贡献
 
-LinuxRunner derives from iSH through ios-linuxkit. Preserve the existing [license](LICENSE.md), [App Store terms](LICENSE.IOS), copyright notices and [third-party attribution](THIRD_PARTY_NOTICES.md).
+欢迎贡献！在提交拉取请求之前，请查看以下指南。
 
-## Report a Bug or Compatibility Result
+## 报告问题
 
-Use [GitHub Issues](https://github.com/mxhm11cr/LinuxRunner/issues/new/choose). Include device model, iOS/iPadOS version, LinuxRunner version/build (Settings → About LinuxRunner), distribution, package version and desktop/graphics mode. Describe reproducible steps, expected behavior and the first relevant error.
+使用 [GitHub Issues](https://github.com/mxhm11cr/LinuxRunner/issues/new/choose) 报告错误、请求功能或提出兼容性发现。
 
-Distinguish a successful launch, basic interaction and a longer feature test. Include diagnostic reports where useful; [Troubleshooting](docs/TROUBLESHOOTING.md#collect-logs-and-report-a-problem) explains the export controls. Review logs and screenshots for messages, account identifiers, addresses, tokens and private paths before sharing. Report vulnerabilities through the [private security channel](SECURITY.md), not public issues.
+请包括：
 
-## Propose a Change
+- 你的设备型号和 iOS/iPadOS 版本
+- LinuxRunner 版本和构建号
+- 使用的 Linux 发行版和版本
+- 桌面环境（如适用）
+- 重现问题的步骤
+- 相关的日志或截图
 
-Read [Architecture](docs/ARCHITECTURE.md) and [Building](docs/BUILDING.md). Keep each pull request focused, preserve existing distributions and explain the behavior changed and how it was verified. Use meaningful tests for runtime changes and state the actual test environment; do not turn a development test into a physical-device claim.
+## 兼容性报告
 
-Follow the surrounding C, Objective-C, Swift and shell style. Do not commit signing credentials, provisioning profiles, private logs, personal data or unrelated binaries. License-check third-party code and retain its preferred source/build instructions and notices.
+如果你测试了 Linux 应用程序的兼容性，请在 [兼容性报告模板](https://github.com/mxhm11cr/LinuxRunner/issues/new?template=compatibility_report.yml) 中分享你的发现。
 
-## Documentation and Screenshots
+包括：
 
-Check instructions against the current interface. The [screenshot handoff](assets/screenshots/README.md) lists missing captures and their intended placement. Use genuine app captures, accurate provenance and short software captions. Do not fabricate screenshots or claim universal device/application support.
+- 应用程序名称和版本
+- 发行版和安装方法
+- 功能状态（完全工作、部分工作、不工作）
+- 任何变通方法或注意事项
+
+## 代码贡献
+
+1. Fork 仓库
+2. 为你的更改创建一个分支 (`git checkout -b feature/your-feature`)
+3. 提交你的更改 (`git commit -m 'Add some feature'`)
+4. 推送到分支 (`git push origin feature/your-feature`)
+5. 打开拉取请求
+
+## 代码风格
+
+- 遵循现有代码风格
+- 为新的公共 API 添加文档
+- 在适当的地方添加测试
+- 确保所有测试在提交前通过
+
+## 文档
+
+文档改进总是受欢迎的。如果你发现拼写错误、不清晰的解释或丢失的信息，请提交拉取请求。
+
+## 翻译
+
+LinuxRunner 支持多种语言。如果你发现翻译错误或想要添加新语言，请查看 `app/` 目录中的本地化文件。
+
+## 许可证
+
+通过贡献，你同意你的贡献将根据项目的 GPL-3.0 许可证进行许可。
+
+感谢你对 LinuxRunner 的贡献！

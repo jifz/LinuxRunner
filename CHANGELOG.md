@@ -1,95 +1,95 @@
-# Changelog
+# 更新日志
 
-User-visible changes follow Added / Changed / Fixed / Known Issues.
+用户可见的更改按 新增 / 更改 / 修复 / 已知问题 分类。
 
-## [1.1.0] — 2026-11-01 (Build 900)
+## [1.1.0] — 2026-11-01（构建 900）
 
-### Added
+### 新增
 
-- External desktop output with compatible wired/AirPlay receivers and an iPhone touchpad control surface.
-- Metal-backed virtual GPU integration through Mesa/virgl, virglrenderer and ANGLE.
-- LXQt, Arch Enlightenment, Wayfire and experimental Arch Hyprland desktop selection/installation.
-- Optional iOS ARM64 JIT build and execution-status/activation controls, with interpreter fallback.
-- Host network diagnostics, Linux interface/address/route compatibility and per-environment file sharing.
+- 外部桌面输出，支持兼容的有线/AirPlay 接收器和 iPhone 触控板控制界面。
+- 通过 Mesa/virgl、virglrenderer 和 ANGLE 实现 Metal 支持的虚拟 GPU 集成。
+- LXQt、Arch Enlightenment、Wayfire 和实验性 Arch Hyprland 桌面选择/安装。
+- 可选的 iOS ARM64 JIT 构建和执行状态/激活控件，带解释器后备。
+- 主机网络诊断、Linux 接口/地址/路由兼容性和每环境文件共享。
 
-### Changed
+### 更改
 
-- ARM64 NEON comparisons/pairwise operations, exclusive stores, memory dispatch and dirty-page filtering.
-- JIT register checkpoint handling and ARMv8 AES/SHA translation; validated PMULL, SHA1/SHA2 and CRC32 capability reporting.
-- Desktop controls, landscape 960 × 540 defaults, resolution preferences and reconnection behavior.
-- Graphical application launch contexts and compatibility, including maintainer-tested Vesktop functionality.
-- Documentation, requirements, installation and screenshots for the major release.
+- ARM64 NEON 比较/成对操作、独占存储、内存调度和脏页过滤。
+- JIT 寄存器检查点处理和 ARMv8 AES/SHA 翻译；经验证的 PMULL、SHA1/SHA2 和 CRC32 功能报告。
+- 桌面控件、横屏 960 × 540 默认值、分辨率偏好和重连行为。
+- 图形应用程序启动上下文和兼容性，包括维护者测试的 Vesktop 功能。
+- 主要版本的文档、要求、安装和截图。
 
-### Fixed
+### 修复
 
-- Vector RBIT incorrectly behaving as NOT and JIT out-of-range LDUR guest-PC corruption.
-- signalfd poll/epoll readiness, concurrent close and shared memfd mapping-growth cases covered by runtime contracts.
-- Batched/malformed netlink route replies and fabricated/empty network reports.
-- Wayland application launch context and Arch Wayfire GPU startup integration.
-- Hyprland's duplicate pointer overlay and saved Fit preferences retaining an unwanted portrait size.
-- Release stripping removing dynamically resolved EGL exports from the GPU-enabled executable.
+- 向量 RBIT 错误地表现为 NOT 以及 JIT 超出范围 LDUR 客户机 PC 损坏。
+- signalfd poll/epoll 就绪、并发关闭和共享 memfd 映射增长情况由运行时契约覆盖。
+- 批量/格式错误的 netlink 路由回复和伪造/空网络报告。
+- Wayland 应用程序启动上下文和 Arch Wayfire GPU 启动集成。
+- Hyprland 的重复指针叠加层和保存的适应偏好保留不需要的纵向大小。
+- 发布剥离从 GPU 启用的可执行文件中移除动态解析的 EGL 导出。
 
-### Known Issues
+### 已知问题
 
-- Hyprland is experimental, requires at least 8 GB RAM and Arch, and can need Retry on first launch. Metal is recommended.
-- Metal must be explicitly selected and followed by a full app restart. GPU/API coverage is incomplete.
-- JIT activation is restricted by the host platform and can make short programs slower.
-- Alpine desktop coverage is limited; Debian Enlightenment and Arch Plasma are not validated working paths.
-- Bluetooth networking is unsupported. Receiver-specific external-output behavior and older OS compatibility vary.
-- iOS termination ends Linux processes; demanding applications can exceed memory limits.
+- Hyprland 是实验性的，需要至少 8 GB 内存和 Arch，首次启动可能需要重试。推荐 Metal。
+- Metal 必须显式选择并完全重启应用。GPU/API 覆盖不完整。
+- JIT 激活受主机平台限制，可能使短程序变慢。
+- Alpine 桌面覆盖有限；Debian Enlightenment 和 Arch Plasma 不是经验证的工作路径。
+- 不支持蓝牙网络。接收器特定的外部输出行为和旧操作系统兼容性各异。
+- iOS 终止结束 Linux 进程；要求高的应用程序可能超出内存限制。
 
 ## [1.0.1] — 2026-10-27
 
-### Added
+### 新增
 
-- iPad desktop adaptations: window-aware initial display sizing, hardware-keyboard desktop shortcuts and larger viewer-frame support, alongside the shared touch/pointer interface. Tested on a physical iPad.
-- Arch Linux ARM installation from signed packages, `pacman` integration and an experimental Openbox desktop with LXQt Panel and PCManFM-Qt.
-- Telegram Desktop compatibility on Arch Linux ARM, tested by the maintainer with login, sending messages and calls on build 897.
-- A unified **Set Up Linux…** workflow for new installations and configuration of existing environments.
-- Arch package-state diagnostics and signed cached-package/ownership recovery through the package-management path and Repair Center.
+- iPad 桌面适配：窗口感知的初始显示大小、硬件键盘桌面快捷键和更大的查看器框架支持，以及共享的触摸/指针界面。在实体 iPad 上测试。
+- 从签名软件包安装 Arch Linux ARM、`pacman` 集成和带 LXQt 面板及 PCManFM-Qt 的实验性 Openbox 桌面。
+- Arch Linux ARM 上的 Telegram 桌面兼容性，由维护者在构建 897 上测试登录、发送消息和通话。
+- 统一的 **设置 Linux…** 工作流，用于新安装和配置现有环境。
+- Arch 软件包状态诊断和通过软件包管理路径及修复中心进行签名缓存软件包/所有权恢复。
 
-### Changed
+### 更改
 
-- Arch desktop defaults now use a named PCManFM-Qt profile and dedicated visible LXQt panel configuration while preserving existing user settings.
-- Desktop readiness checks require usable component windows and a submitted viewer frame; startup diagnostics retain relevant Qt platform errors.
-- IPA packaging now includes an ad-hoc signature and installer-friendly ZIP layout. Apple signing/provisioning is still required for ordinary device installation.
-- Installation, distribution, compatibility and troubleshooting documentation now covers iPhone, iPad and all three distributions.
+- Arch 桌面默认现在使用命名的 PCManFM-Qt 配置文件和专用的可见 LXQt 面板配置，同时保留现有用户设置。
+- 桌面就绪检查需要可用的组件窗口和提交的查看器框架；启动诊断保留相关的 Qt 平台错误。
+- IPA 打包现在包括临时签名和安装程序友好的 ZIP 布局。普通设备安装仍然需要 Apple 签名/配置。
+- 安装、发行版、兼容性和故障排除文档现在涵盖 iPhone、iPad 和所有三个发行版。
 
-### Fixed
+### 修复
 
-- Arch terminal compatibility for the termios2 operations required by its shell environment.
-- Qt desktop/application launch context so managed launches inherit the active user's X11 display and authorization.
-- Reopening a live desktop now reuses its existing session/viewer rather than rejecting re-entry.
-- Invalid or obsolete Arch package-recovery state, including validated reconciliation of orphaned GCC ownership, without bypassing signature checks.
-- Desktop panel/surface failure handling so a repeatedly crashing component does not falsely leave the desktop marked ready or end unrelated applications.
-- ARM64 vDSO executable mapping and Linux filesystem/syscall compatibility gaps covered by the retained regression evidence.
+- Arch 终端兼容性，用于其 shell 环境所需的 termios2 操作。
+- Qt 桌面/应用程序启动上下文，使管理的启动继承活动用户的 X11 显示和授权。
+- 重新打开活动桌面现在重用其现有会话/查看器，而不是拒绝重新进入。
+- 无效或过时的 Arch 软件包恢复状态，包括经验证的孤立 GCC 所有权协调，而不绕过签名检查。
+- 桌面面板/界面故障处理，使反复崩溃的组件不会错误地将桌面标记为就绪或结束不相关的应用程序。
+- ARM64 vDSO 可执行映射和 Linux 文件系统/系统调用兼容性差距由保留的回归证据覆盖。
 
-### Known Issues
+### 已知问题
 
-- Arch desktop and Metal acceleration remain experimental. Arch Plasma and Wayland sessions are unavailable; some Arch GTK/glycin applications encounter write-seal compatibility gaps.
-- Application compatibility still depends on distribution, package version and device resources.
-- Exact tested device/OS and artifact identities should accompany compatibility reports.
-- An earlier iPhone 11/iOS 17 app-launch black-screen report remains unresolved.
-- Demanding applications can be slow or exceed platform memory limits. Background suspension/termination can stop Linux processes.
+- Arch 桌面和 Metal 加速仍然是实验性的。Arch Plasma 和 Wayland 会话不可用；一些 Arch GTK/glycin 应用程序遇到写密封兼容性差距。
+- 应用程序兼容性仍然取决于发行版、软件包版本和设备资源。
+- 确切的测试设备/操作系统和工件身份应随兼容性报告一起提供。
+- 早期的 iPhone 11/iOS 17 应用启动黑屏报告仍未解决。
+- 要求高的应用程序可能很慢或超出平台内存限制。后台暂停/终止可以停止 Linux 进程。
 
 ## [1.0.0] — 2026-10-25
 
-### Added
+### 新增
 
-- First public release of the iPhone application, with ARM64 Linux instruction interpretation and a Linux userspace compatibility layer.
-- Debian and Alpine environments, terminal, Linux accounts, package management and LinuxRunner Desktop.
-- Experimental Debian KDE Plasma and Metal graphics support, with application compatibility limitations.
-- Installation progress for account tools, desktop components and KDE Plasma, including measured percentages where available, actionable errors and retry.
-- Keep Screen Awake During Operations, Settings icons and third-party font/terminal notices.
+- iPhone 应用程序的首次公开发布，带 ARM64 Linux 指令解释和 Linux 用户空间兼容层。
+- Debian 和 Alpine 环境、终端、Linux 账户、软件包管理和 LinuxRunner 桌面。
+- 实验性 Debian KDE Plasma 和 Metal 图形支持，有应用程序兼容性限制。
+- 账户工具、桌面组件和 KDE Plasma 的安装进度，包括可用的测量百分比、可操作的错误和重试。
+- 操作期间保持屏幕唤醒、设置图标和第三方字体/终端通知。
 
-### Changed
+### 更改
 
-- Account-tool preparation reuses recent package lists, retries outdated lists and checks installed tools before reporting success.
-- Public versioning and LinuxRunner branding replaced the earlier internal version/name in user-facing release information.
+- 账户工具准备重用最近的软件包列表，重试过时的列表，并在报告成功之前检查已安装的工具。
+- 公开版本控制和 LinuxRunner 品牌取代了用户面向的发布信息中的早期内部版本/名称。
 
-### Fixed
+### 修复
 
-- An account-tools preparation failure could appear to finish without effect when its installer had not started.
+- 当安装程序未启动时，账户工具准备失败可能看起来完成但没有效果。
 
 [1.0.1]: https://github.com/mxhm11cr/LinuxRunner/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mxhm11cr/LinuxRunner/releases/tag/v1.0.0

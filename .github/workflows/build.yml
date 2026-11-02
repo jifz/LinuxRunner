@@ -1,0 +1,64 @@
+name: Build LinuxRunner IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Unsigned IPA
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Initialize submodules
+      run: |
+        git submodule update --init --recursive --checkout -- deps/libapps deps/libarchive deps/glslang deps/spirv-cross
+    
+    - name: Install dependencies
+      run: |
+        brew install meson ninja cmake lld
+        echo "$(brew --prefix)/opt/lld/bin" >> $GITHUB_PATH
+    
+    - name: Verify prerequisites
+      run: |
+        scripts/bootstrap-macos.sh
+    
+    - name: Build IPA (unsigned, interpreter mode)
+      run: |
+        scripts/build-ipa.sh --unsigned
+    
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LinuxRunner-IPA
+        path: build/releases/LinuxRunner.ipa
+        retention-days: 30
+    
+    - name: Upload build reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: Build-Reports
+        path: |
+          build/releases/*.json
+          build/releases/*.txt
+          build/releases/*.sha256
+        retention-days: 14
+    
+    - name: Summary
+      run: |
+        echo "## Build Complete ✅" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Artifact:** LinuxRunner.ipa (unsigned)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Mode:** Interpreter (no JIT)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Signing:** Ad-hoc (requires your own signing for device installation)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Download the IPA from the Artifacts section above." >> $GITHUB_STEP_SUMMARY

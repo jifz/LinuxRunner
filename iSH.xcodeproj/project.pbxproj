@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		LR000004AF96D90D00FFB7A4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LR000001AF96D90D00FFB7A4 /* Localizable.strings */; };
         1F5300000000000000000048 /* LinuxRunnerLaunch.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F5400000000000000000048; };
 		1C1100000000000000000004 /* DebianSupport.bundle */ = {isa = PBXBuildFile; fileRef = 1C1200000000000000000004; };
 		1C1100000000000000000003 /* DebianInstaller.swift */ = {isa = PBXBuildFile; fileRef = 1C1200000000000000000003; };
@@ -552,6 +553,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		LR000002AF96D90D00FFB7A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		LR000003AF96D90D00FFB7A4 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
         1F5400000000000000000048 /* LinuxRunnerLaunch.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = app/LinuxRunner/LinuxRunnerLaunch.storyboard; sourceTree = SOURCE_ROOT; };
 		1C1200000000000000000004 /* DebianSupport.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = app/LinuxRunner/DebianSupport.bundle; sourceTree = SOURCE_ROOT; };
 		1C1200000000000000000003 /* DebianInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app/LinuxRunner/DebianInstaller.swift; sourceTree = SOURCE_ROOT; };
@@ -1983,6 +1986,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = BB792B451F96D8E000FFB7A4;
 			productRefGroup = BB792B511F96D90D00FFB7A4 /* Products */;
@@ -2051,6 +2055,7 @@
 				FC000001AF96D90D00FFB7A4 /* FiraCodeNerdFontMono-Regular.ttf in Resources */,
 				FC000002AF96D90D00FFB7A4 /* FiraCodeNerdFontMono-Bold.ttf in Resources */,
 				FC000003AF96D90D00FFB7A4 /* FiraCodeNerdFontMono-VENDORED.txt in Resources */,
+				LR000004AF96D90D00FFB7A4 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2863,6 +2868,15 @@
 				BBBCE7E421D2F02200CA00B3 /* Base */,
 			);
 			name = About.storyboard;
+			sourceTree = "<group>";
+		};
+		LR000001AF96D90D00FFB7A4 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				LR000002AF96D90D00FFB7A4 /* en */,
+				LR000003AF96D90D00FFB7A4 /* zh-Hans */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

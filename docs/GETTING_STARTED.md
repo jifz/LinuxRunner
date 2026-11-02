@@ -1,68 +1,68 @@
-# Getting Started — Installing Linux in LinuxRunner
+# 快速开始 — 在 LinuxRunner 中安装 Linux
 
-The IPA installs LinuxRunner. A distribution provides the Linux files, shell and packages inside it. You can keep several environments, but only one runs per application launch.
+IPA 安装 LinuxRunner。发行版提供其中的 Linux 文件、shell 和软件包。你可以保留多个环境，但每次应用启动只有一个运行。
 
-## 1. Install LinuxRunner
+## 1. 安装 LinuxRunner
 
-Download the IPA from [GitHub Releases](https://github.com/mxhm11cr/LinuxRunner/releases/latest) and sign/install it with a compatible sideloading tool of your choice. See [Installation](INSTALLATION.md) for checksum and signing details. Installing the app does not require compiling its source.
+从 [GitHub Releases](https://github.com/mxhm11cr/LinuxRunner/releases/latest) 下载 IPA，并使用你选择的兼容侧载工具签名/安装。参见 [安装](INSTALLATION.md) 了解校验和和签名详情。安装应用不需要编译其源代码。
 
-For an update, back up important files and preserve your bundle identifier and App Group configuration. Do not uninstall the existing app as a troubleshooting step.
+对于更新，备份重要文件并保留你的包标识符和 App Group 配置。不要将卸载现有应用作为故障排除步骤。
 
-## 2. Open LinuxRunner
+## 2. 打开 LinuxRunner
 
-The app has **Home**, **Distributions**, **Sessions** and **Settings** tabs. Home shows the active runtime, desktop status and workspace actions. A setup assistant may appear automatically when no environment exists. Otherwise, open it yourself in the next step.
+应用有 **主页**、**发行版**、**会话** 和 **设置** 标签。主页显示活动运行时、桌面状态和工作区操作。当没有环境存在时，设置助手可能自动出现。否则，在下一步中自己打开它。
 
-## 3. Open Distributions
+## 3. 打开发行版
 
-Select **Distributions**. Existing installations appear under **Installed**. Their files and package databases are separate.
+选择 **发行版**。现有安装显示在 **已安装** 下。它们的文件和软件包数据库是独立的。
 
-To use a different installed environment, open it and choose **Use on Next Launch**, then fully close LinuxRunner from the app switcher and reopen it. This switches the active root filesystem; it does not reinstall Linux.
+要使用不同的已安装环境，打开它并选择 **下次启动时使用**，然后从应用切换器完全关闭 LinuxRunner 并重新打开。这会切换活动的根文件系统；它不会重新安装 Linux。
 
-## 4. Select Set Up Linux…
+## 4. 选择设置 Linux…
 
-Choose **Set Up Linux…** under **Add Environment**, then **Continue**. This is the unified installation/configuration workflow. An environment's detail screen also has **Set Up Linux…** for configuring that existing installation.
+在 **添加环境** 下选择 **设置 Linux…**，然后 **继续**。这是统一的安装/配置工作流。环境的详情屏幕也有 **设置 Linux…** 用于配置该现有安装。
 
-## 5. Choose a Linux Distribution
+## 5. 选择 Linux 发行版
 
-On **Choose Linux**, select:
+在 **选择 Linux** 上，选择：
 
-| Choice in the app | Choose it for |
+| 应用中的选择 | 适用于 |
 | --- | --- |
-| **Debian GNU/Linux 13 (ARM64) — recommended** | Recommended `apt` environment; LinuxRunner Desktop, LXQt and experimental KDE Plasma/Wayfire. |
-| **Arch Linux ARM (ARM64) — experimental** | Rolling `pacman` environment; the most desktop choices, including experimental Hyprland. The app still labels this distribution experimental. |
-| **Alpine Linux 3.24 (ARM64)** | A small, mainly terminal-oriented environment using `apk`. |
+| **Debian GNU/Linux 13 (ARM64) — 推荐** | 推荐的 `apt` 环境；LinuxRunner 桌面、LXQt 和实验性 KDE Plasma/Wayfire。 |
+| **Arch Linux ARM (ARM64) — 实验性** | 滚动 `pacman` 环境；最多的桌面选择，包括实验性 Hyprland。应用仍将此发行版标记为实验性。 |
+| **Alpine Linux 3.24 (ARM64)** | 使用 `apk` 的小型、主要面向终端的环境。 |
 
-If the selected distribution is already installed, **Already Installed** offers **Configure <environment name>**. Use that to retain its files and accounts. Choose **Install Another Environment** only when you actually want a separate installation. Otherwise, choose **Continue**.
+如果所选发行版已安装，**已安装** 提供 **配置 <环境名称>**。使用它来保留其文件和账户。仅当你确实想要单独安装时才选择 **安装另一个环境**。否则，选择 **继续**。
 
-## 6. Review the Installation Options
+## 6. 查看安装选项
 
-The **Install Linux** screen shows download information, available storage and an installed-size estimate. Arch displays a base-installation free-space requirement; desktops and applications need additional space.
+**安装 Linux** 屏幕显示下载信息、可用存储和安装大小估计。Arch 显示基础安装的可用空间要求；桌面和应用程序需要额外空间。
 
-This wizard does **not** ask for a custom destination folder, partition, mirror or desktop choice on this screen. LinuxRunner manages the environment's storage. Account creation and desktop preparation follow installation.
+此向导在此屏幕上 **不** 要求自定义目标文件夹、分区、镜像或桌面选择。LinuxRunner 管理环境的存储。账户创建和桌面准备在安装之后进行。
 
-Keep the app in the foreground during long operations. **Settings → General → Keep Screen Awake During Operations** prevents idle locking; it does not keep the app running in the background.
+在长时间操作期间保持应用在前台。**设置 → 常规 → 操作期间保持屏幕唤醒** 防止空闲锁定；它不让应用在后台运行。
 
-## 7. Install the Distribution
+## 7. 安装发行版
 
-Use the button matching your choice: **Install Debian**, **Install Arch Linux ARM** or **Install Alpine**.
+使用匹配你选择的按钮：**安装 Debian**、**安装 Arch Linux ARM** 或 **安装 Alpine**。
 
-Debian and Arch download official packages and verify the signed package data. Arch retains verified downloads for retry. Alpine unpacks the root filesystem included in the app. Follow the progress text; percentages are shown when the operation can measure them. Download and installation times depend on your connection and device.
+Debian 和 Arch 下载官方软件包并验证签名的软件包数据。Arch 保留验证的下载用于重试。Alpine 解包应用中包含的根文件系统。按照进度文本；当操作可以测量时显示百分比。下载和安装时间取决于你的连接和设备。
 
-Debian and Arch offer **Cancel** during downloading and **Try Again** after a reported failure. Wait for cancellation to finish before retrying. Read the error instead of starting another installation over an existing environment. [Installation recovery](TROUBLESHOOTING.md#distribution-installation-fails-or-stops)
+Debian 和 Arch 在下载期间提供 **取消**，在报告的失败后提供 **重试**。在重试之前等待取消完成。阅读错误而不是在现有环境上开始另一个安装。[安装恢复](TROUBLESHOOTING.md#distribution-installation-fails-or-stops)
 
-## 8. Complete Initial Setup and Create an Account
+## 8. 完成初始设置并创建账户
 
-If **Restart LinuxRunner** appears, swipe the app away in the app switcher and open it again. Setup resumes for the selected environment. First-start package configuration and account-tool installation may take additional time; keep the app open.
+如果出现 **重启 LinuxRunner**，在应用切换器中滑走应用并再次打开。设置恢复所选环境。首次启动的软件包配置和账户工具安装可能需要额外时间；保持应用打开。
 
-On **Your Account**, either select an existing regular account or enter **Username**, **Password**, **Confirm password**, then choose **Create Account**. The interface accepts lowercase letters, digits, `-` and `_` for account names. **Administrator (can use sudo)** grants administrative use through `sudo`.
+在 **你的账户** 上，选择现有普通账户或输入 **用户名**、**密码**、**确认密码**，然后选择 **创建账户**。界面接受账户名的小写字母、数字、`-` 和 `_`。**管理员（可以使用 sudo）** 通过 `sudo` 授予管理使用。
 
-`root` is Linux's administrative account. A regular user is preferable for everyday applications; some graphical programs refuse to run as root. LinuxRunner stores a Linux password hash, not the entered password. Linux accounts are useful compatibility features, not a security boundary between programs in the app.
+`root` 是 Linux 的管理账户。日常应用程序最好使用普通用户；一些图形程序拒绝以 root 身份运行。LinuxRunner 存储 Linux 密码哈希，不存储输入的密码。Linux 账户是有用的兼容性功能，不是应用中程序之间的安全边界。
 
-## 9. Open the Linux Terminal
+## 9. 打开 Linux 终端
 
-For a terminal-only workflow, use **Later** when setup is idle to leave the assistant. You can return through **Distributions → <environment> → Set Up Linux…**. On Home, choose **Terminal**, or open the active environment and choose **Open Terminal**. If no runtime is running, Home offers **Start Linux Runtime**.
+对于仅终端的工作流，当设置空闲时使用 **稍后** 离开助手。你可以通过 **发行版 → <环境> → 设置 Linux…** 返回。在主页上，选择 **终端**，或打开活动环境并选择 **打开终端**。如果没有运行时在运行，主页提供 **启动 Linux 运行时**。
 
-Try these read-only commands:
+尝试这些只读命令：
 
 **Debian**
 
@@ -85,47 +85,47 @@ cat /etc/os-release
 apk info
 ```
 
-The architecture is normally reported as `aarch64`. Linux version/CPU information is a compatibility view; it does not mean the app booted a Linux kernel. Use `id` and `pwd` to check your selected account and working directory.
+架构通常报告为 `aarch64`。Linux 版本/CPU 信息是兼容性视图；它不意味着应用启动了 Linux 内核。使用 `id` 和 `pwd` 检查你选择的账户和工作目录。
 
-## 10. Install Desktop Components
+## 10. 安装桌面组件
 
-A desktop is optional for terminal use. In the assistant's **Desktop** stage, choose **Install Desktop Components**. This adds the display server, window manager, panel, file manager and available sound support using the distribution's packages. Account tools and desktop packages may need network access even with bundled Alpine.
+对于终端使用，桌面是可选的。在助手的 **桌面** 阶段，选择 **安装桌面组件**。这使用发行版的软件包添加显示服务器、窗口管理器、面板、文件管理器和可用的声音支持。即使有捆绑的 Alpine，账户工具和桌面软件包也可能需要网络访问。
 
-The setup desktop uses lightweight Openbox components (LXQt Panel/PCManFM-Qt on Arch). For another desktop, open **Settings → Desktop Environment**, use **Install LXQt**, **Install Enlightenment**, **Install Wayfire**, **Install Hyprland** or **Install KDE Plasma** where available, then select it in the **Desktop** picker under **Open Desktop Starts**. Stop an existing desktop before switching. Hyprland is experimental, Arch-only and requires at least 8 GB RAM; Metal is recommended. Enlightenment is disabled on Debian and Arch Plasma remains unvalidated.
+设置桌面使用轻量级 Openbox 组件（Arch 上的 LXQt 面板/PCManFM-Qt）。对于另一个桌面，打开 **设置 → 桌面环境**，使用 **安装 LXQt**、**安装 Enlightenment**、**安装 Wayfire**、**安装 Hyprland** 或 **安装 KDE Plasma**（如可用），然后在 **打开桌面启动** 下的 **桌面** 选择器中选择它。切换前停止现有桌面。Hyprland 是实验性的，仅 Arch，需要至少 8 GB 内存；推荐 Metal。Enlightenment 在 Debian 上禁用，Arch Plasma 仍未验证。
 
-When components are installed, choose **Continue**. **Home → Open Desktop** can also install missing desktop support automatically. Alpine's desktop path is experimental; use its terminal if graphical packages fail.
+当组件安装完成时，选择 **继续**。**主页 → 打开桌面** 也可以自动安装缺少的桌面支持。Alpine 的桌面路径是实验性的；如果图形软件包失败，使用其终端。
 
-## 11. Launch and Use the Desktop
+## 11. 启动和使用桌面
 
-Choose **Open Desktop** at the end of setup or on Home. A running session may instead show **Resume Desktop**. The viewer displays the Linux desktop and forwards input.
+在设置结束时或主页上选择 **打开桌面**。运行的会话可能显示 **恢复桌面**。查看器显示 Linux 桌面并转发输入。
 
-| Control | Action |
+| 控件 | 操作 |
 | --- | --- |
-| Tap | Left click in touch mode. |
-| Long press | Right click by default; the input controls can select two-finger right click. |
-| Pinch | Zoom the desktop view. |
-| Two-finger movement | Pan while zoomed; scroll when fitted. |
-| Keyboard button and modifier bar | Show the on-screen keyboard; send Esc, Tab, Shift, Ctrl, Alt and Super. |
-| Hardware keyboard / supported mouse or trackpad | Forward the input delivered by iOS/iPadOS. Behavior depends on the accessory and platform settings. |
-| **Desktop → Desktop Settings… → Display → Fit** / **Actual Size** | Change viewer scaling. |
-| **Desktop Settings… → Display → Resolution & Viewer Preferences** | Select a window-sized Linux resolution for the next session start. |
-| **Done** | Return to LinuxRunner while retaining the current desktop session. |
-| **Sessions → Resume Desktop** | Reattach to a live session. |
-| **Stop Desktop** | End the desktop and its applications; save documents first. |
+| 点击 | 触摸模式下的左键单击。 |
+| 长按 | 默认右键单击；输入控件可以选择两指右键单击。 |
+| 捏合 | 缩放桌面视图。 |
+| 两指移动 | 缩放时平移；适应时滚动。 |
+| 键盘按钮和修饰栏 | 显示屏幕键盘；发送 Esc、Tab、Shift、Ctrl、Alt 和 Super。 |
+| 硬件键盘 / 支持的鼠标或触控板 | 转发 iOS/iPadOS 传递的输入。行为取决于附件和平台设置。 |
+| **桌面 → 桌面设置… → 显示 → 适应** / **实际大小** | 更改查看器缩放。 |
+| **桌面设置… → 显示 → 分辨率与查看器偏好** | 为下次会话启动选择窗口大小的 Linux 分辨率。 |
+| **完成** | 返回 LinuxRunner 同时保留当前桌面会话。 |
+| **会话 → 恢复桌面** | 重新附加到活动会话。 |
+| **停止桌面** | 结束桌面及其应用程序；先保存文档。 |
 
-Use **Desktop → Paste Clipboard Text**, including on iPad. It types clipboard text into the focused Linux application. Check the text and focus before using it.
+使用 **桌面 → 粘贴剪贴板文本**，包括在 iPad 上。它将剪贴板文本输入到焦点 Linux 应用程序中。使用前检查文本和焦点。
 
-On a hardware keyboard, **Control–Option–Command–M** opens Desktop Options, **–F** fits the view, **–0** uses actual size and **–W** closes the view. Other forwarded Command combinations use the Linux Super modifier. On iPad, hold Command to see available app shortcuts.
+在硬件键盘上，**Control–Option–Command–M** 打开桌面选项，**–F** 适应视图，**–0** 使用实际大小，**–W** 关闭视图。其他转发的 Command 组合使用 Linux Super 修饰符。在 iPad 上，按住 Command 查看可用的应用快捷键。
 
-The larger iPad window can show more of a desktop. Four orientations, window-aware initial sizing, keyboard shortcuts and pointer handling are implemented; the maintainer has tested iPad support on a physical device. Changing viewer scale does not resize already-running Linux windows to a new display resolution.
+更大的 iPad 窗口可以显示更多桌面。实现了四个方向、窗口感知的初始大小、键盘快捷键和指针处理；维护者已在实体设备上测试 iPad 支持。更改查看器缩放不会将已运行的 Linux 窗口调整到新的显示分辨率。
 
-Closing the viewer is different from stopping the desktop. iOS/iPadOS may suspend the app, and termination ends Linux processes even though saved files remain.
+关闭查看器不同于停止桌面。iOS/iPadOS 可能暂停应用，终止结束 Linux 进程，即使保存的文件保留。
 
-## 12. Install and Launch Applications
+## 12. 安装和启动应用程序
 
-Use **Home → App Manager**, or **Distributions → <active environment> → Install, Manage and Repair Applications**. Search, inspect package details and review the proposed transaction. The App Catalog is a convenience list, not a guarantee that every listed application works in every distribution.
+使用 **主页 → 应用程序管理器**，或 **发行版 → <活动环境> → 安装、管理和修复应用程序**。搜索、检查软件包详情并查看提议的事务。应用程序目录是便利列表，不保证每个列出的应用程序在每个发行版中都工作。
 
-For a small command-line example, install `nano`. These commands change packages and require an administrator account; review each package manager's confirmation:
+对于小型命令行示例，安装 `nano`。这些命令更改软件包并需要管理员账户；查看每个软件包管理器的确认：
 
 **Debian**
 
@@ -140,7 +140,7 @@ sudo apt install nano
 sudo pacman -Syu --needed nano
 ```
 
-Arch is a rolling distribution: use a consistent full-system upgrade when adding packages, rather than synchronizing databases and installing against an old system. Back up important files before upgrades.
+Arch 是滚动发行版：添加软件包时使用一致的全系统升级，而不是同步数据库并针对旧系统安装。升级前备份重要文件。
 
 **Alpine**
 
@@ -149,14 +149,14 @@ sudo apk update
 sudo apk add nano
 ```
 
-Run `nano` in the terminal. For installed graphical applications, use **Home → Applications** or the environment's discovered application list. Managed launchers supply the active display and authorization. If starting a GUI program from a terminal, open a fresh terminal after the desktop starts; an older shell cannot inherit a new display environment automatically.
+在终端中运行 `nano`。对于已安装的图形应用程序，使用 **主页 → 应用程序** 或环境的发现应用程序列表。管理的启动器提供活动的显示和授权。如果从终端启动 GUI 程序，在桌面启动后打开新终端；旧 shell 不能自动继承新的显示环境。
 
-Application compatibility varies by distribution, package version and workload. See [Compatibility](COMPATIBILITY.md) and [Troubleshooting](TROUBLESHOOTING.md). Never disable package signature verification to make an installation proceed.
+应用程序兼容性因发行版、软件包版本和工作负载而异。参见 [兼容性](COMPATIBILITY.md) 和 [故障排除](TROUBLESHOOTING.md)。永远不要禁用软件包签名验证以使安装继续。
 
-## 13. Select Graphics, External Output or Optional JIT
+## 13. 选择图形、外部输出或可选 JIT
 
-For the accelerated path, use **Settings → Graphics → Linux GPU Device → GPU → Metal GPU · Experimental**. Fully close/reopen the app, then check **Active renderer**. Automatic uses software in Build 900. See [graphics and performance](PERFORMANCE.md).
+对于加速路径，使用 **设置 → 图形 → Linux GPU 设备 → GPU → Metal GPU · 实验性**。完全关闭/重新打开应用，然后检查 **活动渲染器**。自动在构建 900 中使用软件。参见 [图形和性能](PERFORMANCE.md)。
 
-For an external display, enable **Settings → Devices → External Desktop Output**, connect a compatible wired/AirPlay display, open the desktop and choose **Desktop → Use iPhone as Trackpad**. Independent controls require a separate iOS external scene. [Display guide](NETWORKING_AND_DISPLAYS.md)
+对于外部显示器，启用 **设置 → 设备 → 外部桌面输出**，连接兼容的有线/AirPlay 显示器，打开桌面并选择 **桌面 → 使用 iPhone 作为触控板**。独立控件需要单独的 iOS 外部场景。[显示指南](NETWORKING_AND_DISPLAYS.md)
 
-JIT is optional. The interpreter works without activation. Enable **Settings → Advanced → Developer Mode** to inspect **Execution Engine / StikDebug**, actual status and activation controls. Availability depends on signing and OS restrictions; a compiled JIT does not imply permission to execute it.
+JIT 是可选的。解释器无需激活即可工作。启用 **设置 → 高级 → 开发者模式** 以检查 **执行引擎 / StikDebug**、实际状态和激活控件。可用性取决于签名和 OS 限制；编译的 JIT 不意味着允许执行它。
