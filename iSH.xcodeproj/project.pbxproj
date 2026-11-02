@@ -553,8 +553,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		LR000002AF96D90D00FFB7A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		LR000003AF96D90D00FFB7A4 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		LR000002AF96D90D00FFB7A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = app/en.lproj/Localizable.strings; sourceTree = SOURCE_ROOT; };
+		LR000003AF96D90D00FFB7A4 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = app/zh-Hans.lproj/Localizable.strings; sourceTree = SOURCE_ROOT; };
         1F5400000000000000000048 /* LinuxRunnerLaunch.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = app/LinuxRunner/LinuxRunnerLaunch.storyboard; sourceTree = SOURCE_ROOT; };
 		1C1200000000000000000004 /* DebianSupport.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = app/LinuxRunner/DebianSupport.bundle; sourceTree = SOURCE_ROOT; };
 		1C1200000000000000000003 /* DebianInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app/LinuxRunner/DebianInstaller.swift; sourceTree = SOURCE_ROOT; };
