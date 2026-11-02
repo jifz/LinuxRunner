@@ -6,6 +6,13 @@
 //
 
 #import "CurrentRoot.h"
+
+// LRMirrorPolicy 的完整声明在 app/LinuxRunner/RuntimeBridge.h 中，该头文件会引入
+// UIKit，不适合在此包含。这里只声明本文件实际用到的一个类方法。
+@interface LRMirrorPolicy : NSObject
++ (NSArray<NSString *> * _Nullable)alpineRepositories;
+@end
+
 #include "kernel/calls.h"
 #include "fs/path.h"
 
@@ -94,11 +101,22 @@ bool FsNeedsRepositoryUpdate(void) {
 }
 
 void FsUpdateOnlyRepositoriesFile(void) {
+    // 若用户在「软件源」里选择了国内源，则写入国内 Alpine 仓库；
+    // 否则沿用构建期固定的官方 CDN 仓库列表。
+    NSArray<NSString *> *policyRepositories = [LRMirrorPolicy alpineRepositories];
+    NSMutableData *repositoriesData = [@"# This file contains pinned repositories managed by ios-linuxkit. If the /ish directory\n"
+                                       @"# exists, ios-linuxkit uses the metadata stored in it to keep this file up to date (by\n"
+                                       @"# overwriting the contents on boot.)\n" dataUsingEncoding:NSUTF8StringEncoding].mutableCopy;
+    if (policyRepositories.count) {
+        [repositoriesData appendData:[@"# 由 LinuxRunner 按「软件源」设置生成（国内镜像）。\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        for (NSString *line in policyRepositories) {
+            [repositoriesData appendData:[[line stringByAppendingString:@"\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        write_file("/etc/apk/repositories", repositoriesData.bytes, repositoriesData.length);
+        return;
+    }
     NSURL *repositories = [NSBundle.mainBundle URLForResource:@"repositories" withExtension:@"txt"];
     if (repositories != nil) {
-        NSMutableData *repositoriesData = [@"# This file contains pinned repositories managed by ios-linuxkit. If the /ish directory\n"
-                                           @"# exists, ios-linuxkit uses the metadata stored in it to keep this file up to date (by\n"
-                                           @"# overwriting the contents on boot.)\n" dataUsingEncoding:NSUTF8StringEncoding].mutableCopy;
         [repositoriesData appendData:[NSData dataWithContentsOfURL:repositories]];
         write_file("/etc/apk/repositories", repositoriesData.bytes, repositoriesData.length);
     }

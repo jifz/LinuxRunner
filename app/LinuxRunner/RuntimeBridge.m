@@ -720,7 +720,17 @@ static NSString *LRJITLastFailure;   // reason of the last refused or failed act
     LRInstallProgress *reporter=[LRInstallProgress new];reporter.progress=^(double value,NSString *message){progress(value);};reporter.cancel=cancel;
     const char **paths=calloc(packages.count,sizeof(char *));if(!paths){if(error)*error=lrError(ENOMEM,@"Package path allocation failed");return NO;}
     for(NSUInteger i=0;i<packages.count;i++)paths[i]=packages[i].fileSystemRepresentation;
-    struct lr_debian_bootstrap_options options={.progress=LRPackageProgress,.cancel=LRPackageCancel,.log=LRPackageDiagnostic,.context=(__bridge void *)reporter,.trace_entries=atomic_load(&diagnosticLevel)>=3};
+    // LinuxRunner 本地化：按用户设置的软件源/DNS/语言/时区生成客户机落盘内容。
+    // 值为 nil 时 UTF8String 得到 NULL，C 层回落到上游默认。
+    NSString *lrAptSources=[LRMirrorPolicy debianSourcesList];
+    NSString *lrResolvConf=[LRMirrorPolicy resolvConf];
+    NSString *lrDefaultLocale=[LRMirrorPolicy defaultLocale];
+    NSString *lrLocaleGen=[LRMirrorPolicy localeGen];
+    NSString *lrLocaleProfile=[LRMirrorPolicy localeProfile];
+    NSString *lrTimezoneFile=[LRMirrorPolicy timezoneFile];
+    struct lr_debian_bootstrap_options options={.progress=LRPackageProgress,.cancel=LRPackageCancel,.log=LRPackageDiagnostic,.context=(__bridge void *)reporter,.trace_entries=atomic_load(&diagnosticLevel)>=3,
+        .apt_sources=lrAptSources.UTF8String,.resolv_conf=lrResolvConf.UTF8String,.default_locale=lrDefaultLocale.UTF8String,
+        .locale_gen=lrLocaleGen.UTF8String,.locale_profile=lrLocaleProfile.UTF8String,.timezone_file=lrTimezoneFile.UTF8String};
     char message[2048]={0};int result=lr_debian_bootstrap_diagnosed(paths,packages.count,archive.fileSystemRepresentation,&options,message,sizeof message);free(paths);
     [LRDiagnosticCenter flush];
     if(result&&error)*error=lrError(result,[NSString stringWithUTF8String:message]);return result==0;
@@ -739,7 +749,16 @@ static NSString *LRJITLastFailure;   // reason of the last refused or failed act
     const char **paths=calloc(packages.count,sizeof(char *)),**nm=calloc(packages.count,sizeof(char *)),**ds=calloc(packages.count,sizeof(char *));
     if(!paths||!nm||!ds){free(paths);free(nm);free(ds);if(error)*error=lrError(ENOMEM,@"Package path allocation failed");return NO;}
     for(NSUInteger i=0;i<packages.count;i++){paths[i]=packages[i].fileSystemRepresentation;nm[i]=names[i].UTF8String;ds[i]=descriptions[i].UTF8String;}
-    struct lr_debian_bootstrap_options options={.progress=LRPackageProgress,.cancel=LRPackageCancel,.log=LRPackageDiagnostic,.context=(__bridge void *)reporter,.trace_entries=atomic_load(&diagnosticLevel)>=3};
+    // LinuxRunner 本地化：Arch 使用 pacman mirrorlist 与 locale.conf。
+    NSString *lrArchMirrorlist=[LRMirrorPolicy archMirrorlist];
+    NSString *lrResolvConf=[LRMirrorPolicy resolvConf];
+    NSString *lrLocaleConf=[LRMirrorPolicy localeConf];
+    NSString *lrLocaleGen=[LRMirrorPolicy localeGen];
+    NSString *lrLocaleProfile=[LRMirrorPolicy localeProfile];
+    NSString *lrTimezoneFile=[LRMirrorPolicy timezoneFile];
+    struct lr_debian_bootstrap_options options={.progress=LRPackageProgress,.cancel=LRPackageCancel,.log=LRPackageDiagnostic,.context=(__bridge void *)reporter,.trace_entries=atomic_load(&diagnosticLevel)>=3,
+        .arch_mirrorlist=lrArchMirrorlist.UTF8String,.resolv_conf=lrResolvConf.UTF8String,.locale_conf=lrLocaleConf.UTF8String,
+        .locale_gen=lrLocaleGen.UTF8String,.locale_profile=lrLocaleProfile.UTF8String,.timezone_file=lrTimezoneFile.UTF8String};
     char message[2048]={0};int result=lr_arch_bootstrap_diagnosed(paths,nm,ds,packages.count,archive.fileSystemRepresentation,&options,message,sizeof message);
     free(paths);free(nm);free(ds);[LRDiagnosticCenter flush];
     if(result&&error)*error=lrError(result,[NSString stringWithUTF8String:message]);return result==0;
@@ -1796,4 +1815,314 @@ static int LRSharedDirectory(NSString *root,NSString *relative){
     share.completionWithItemsHandler = ^(UIActivityType type, BOOL complete, NSArray *items, NSError *failure) { [NSFileManager.defaultManager removeItemAtURL:url error:nil]; };
     [self presentViewController:share animated:YES completion:nil];
 }
+@end
+
+#pragma mark - LRMirrorPolicy (国内镜像源与中文本地化)
+
+static NSString *const kLRMirrorRegionKey = @"linuxrunner.mirror.region";
+static NSString *const kLRMirrorDNSKey = @"linuxrunner.guest.dns";
+static NSString *const kLRMirrorLanguageKey = @"linuxrunner.guest.language";
+static NSString *const kLRMirrorTimezoneKey = @"linuxrunner.guest.timezone";
+static NSString *const kLRMirrorDesktopL10nKey = @"linuxrunner.guest.desktopTranslations";
+
+/// 每个提供方的镜像地址。全部经实际 HTTP 探测确认可用（2026-11-02）。
+/// alpine 为 nil 表示该提供方不提供可用的 Alpine 仓库（USTC 对 Alpine 返回 403），
+/// 此时回落到清华源。
+static NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *LRMirrorProviders(void) {
+    static NSDictionary *providers;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        providers = @{
+            @"tuna": @{
+                @"name": @"清华大学 TUNA",
+                @"debian": @"https://mirrors.tuna.tsinghua.edu.cn/debian/",
+                @"debianSecurity": @"https://mirrors.tuna.tsinghua.edu.cn/debian-security/",
+                @"arch": @"https://mirrors.tuna.tsinghua.edu.cn/archlinuxarm/aarch64",
+                @"alpine": @"https://mirrors.tuna.tsinghua.edu.cn/alpine",
+            },
+            @"aliyun": @{
+                @"name": @"阿里云",
+                @"debian": @"https://mirrors.aliyun.com/debian/",
+                @"debianSecurity": @"https://mirrors.aliyun.com/debian-security/",
+                @"arch": @"https://mirrors.aliyun.com/archlinuxarm/aarch64",
+                @"alpine": @"https://mirrors.aliyun.com/alpine",
+            },
+            @"tencent": @{
+                @"name": @"腾讯云",
+                @"debian": @"https://mirrors.cloud.tencent.com/debian/",
+                @"debianSecurity": @"https://mirrors.cloud.tencent.com/debian-security/",
+                @"arch": @"https://mirrors.cloud.tencent.com/archlinuxarm/aarch64",
+                @"alpine": @"https://mirrors.cloud.tencent.com/alpine",
+            },
+            @"ustc": @{
+                @"name": @"中国科学技术大学",
+                @"debian": @"https://mirrors.ustc.edu.cn/debian/",
+                @"debianSecurity": @"https://mirrors.ustc.edu.cn/debian-security/",
+                @"arch": @"https://mirrors.ustc.edu.cn/archlinuxarm/aarch64",
+            },
+            @"overseas": @{
+                @"name": @"官方海外源",
+                @"debian": @"https://deb.debian.org/debian/",
+                @"debianSecurity": @"https://security.debian.org/debian-security/",
+                @"alpine": @"https://dl-cdn.alpinelinux.org/alpine",
+            },
+        };
+    });
+    return providers;
+}
+
+/// 国内源优先顺序（automatic 档位使用）。下载时逐个尝试，失败自动降级。
+static NSArray<NSString *> *LRDomesticOrder(void) {
+    return @[@"tuna", @"aliyun", @"tencent", @"ustc"];
+}
+
+/// Arch 官方海外镜像，作为最后的兜底。
+static NSArray<NSString *> *LRArchOverseasMirrors(void) {
+    return @[@"https://fl.us.mirror.archlinuxarm.org/aarch64",
+             @"https://de.mirror.archlinuxarm.org/aarch64",
+             @"https://eu.mirror.archlinuxarm.org/aarch64"];
+}
+
+/// automatic：国内源在前，官方源兜底。
+static NSArray<NSString *> *LRMirrorDomesticOrderWithFallback(void) {
+    NSMutableArray *order = [LRDomesticOrder() mutableCopy];
+    [order addObject:@"overseas"];
+    return order;
+}
+
+/// 返回按当前档位排序的提供方 key 列表（不含 overseas，除非档位为 overseas）。
+static NSArray<NSString *> *LROrderedProviders(void) {
+    NSString *region = [LRMirrorPolicy region];
+    if ([region isEqualToString:@"overseas"]) return @[@"overseas"];
+    if ([region isEqualToString:@"automatic"]) return LRMirrorDomesticOrderWithFallback();
+    if (LRMirrorProviders()[region]) return @[region];
+    return LRMirrorDomesticOrderWithFallback();
+}
+
+@implementation LRMirrorPolicy
+
++ (NSString *)region {
+    NSString *value = [NSUserDefaults.standardUserDefaults stringForKey:kLRMirrorRegionKey];
+    NSArray *valid = @[@"automatic", @"overseas", @"tuna", @"aliyun", @"ustc", @"tencent"];
+    return value && [valid containsObject:value] ? value : @"automatic";
+}
+
++ (void)setRegion:(NSString *)region {
+    [NSUserDefaults.standardUserDefaults setObject:region forKey:kLRMirrorRegionKey];
+}
+
++ (NSArray<NSString *> *)availableRegions {
+    return @[@"automatic", @"tuna", @"aliyun", @"tencent", @"ustc", @"overseas"];
+}
+
++ (NSString *)regionDisplayName:(NSString *)region {
+    if ([region isEqualToString:@"automatic"]) return @"自动（国内源优先，失败回落官方）";
+    NSDictionary *provider = LRMirrorProviders()[region];
+    return provider ? provider[@"name"] : region;
+}
+
++ (NSString *)activeProviderName {
+    NSArray *order = LROrderedProviders();
+    NSString *first = order.firstObject;
+    return first ? [self regionDisplayName:first] : @"";
+}
+
++ (NSString *)resolvedRegion {
+    NSArray *order = LROrderedProviders();
+    NSString *first = order.firstObject;
+    // overseas 档位下首项即 overseas；automatic 下首项为国内首选源。
+    return first ?: @"overseas";
+}
+
++ (NSString *)dnsMode {
+    NSString *value = [NSUserDefaults.standardUserDefaults stringForKey:kLRMirrorDNSKey];
+    NSArray *valid = @[@"follow", @"domestic", @"overseas"];
+    return value && [valid containsObject:value] ? value : @"follow";
+}
+
++ (void)setDnsMode:(NSString *)mode {
+    [NSUserDefaults.standardUserDefaults setObject:mode forKey:kLRMirrorDNSKey];
+}
+
++ (NSString *)guestLanguage {
+    NSString *value = [NSUserDefaults.standardUserDefaults stringForKey:kLRMirrorLanguageKey];
+    return [value isEqualToString:@"en_US"] ? @"en_US" : @"zh_CN";
+}
+
++ (void)setGuestLanguage:(NSString *)language {
+    [NSUserDefaults.standardUserDefaults setObject:language forKey:kLRMirrorLanguageKey];
+}
+
++ (NSString *)guestTimezone {
+    NSString *value = [NSUserDefaults.standardUserDefaults stringForKey:kLRMirrorTimezoneKey];
+    return value.length ? value : @"Asia/Shanghai";
+}
+
++ (void)setGuestTimezone:(NSString *)timezone {
+    [NSUserDefaults.standardUserDefaults setObject:timezone forKey:kLRMirrorTimezoneKey];
+}
+
++ (BOOL)installsChineseDesktopSupport {
+    id value = [NSUserDefaults.standardUserDefaults objectForKey:kLRMirrorDesktopL10nKey];
+    return value ? [value boolValue] : YES;
+}
+
++ (void)setInstallsChineseDesktopSupport:(BOOL)enabled {
+    [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kLRMirrorDesktopL10nKey];
+}
+
+#pragma mark 候选源
+
++ (NSArray<NSDictionary<NSString *, NSString *> *> *)debianCandidates {
+    NSMutableArray *candidates = [NSMutableArray array];
+    for (NSString *key in LROrderedProviders()) {
+        NSDictionary *provider = LRMirrorProviders()[key];
+        NSString *base = provider[@"debian"];
+        NSString *security = provider[@"debianSecurity"];
+        if (!base || !security) continue;
+        [candidates addObject:@{@"key": key, @"name": provider[@"name"], @"base": base, @"security": security}];
+    }
+    return candidates;
+}
+
++ (NSArray<NSString *> *)archCandidates {
+    NSMutableArray *candidates = [NSMutableArray array];
+    for (NSString *key in LROrderedProviders()) {
+        NSString *arch = LRMirrorProviders()[key][@"arch"];
+        if (arch) [candidates addObject:arch];
+    }
+    // 官方地理镜像始终作为最后兜底。
+    if (![candidates containsObject:@"http://mirror.archlinuxarm.org/aarch64"]) {
+        [candidates addObject:@"http://mirror.archlinuxarm.org/aarch64"];
+    }
+    for (NSString *mirror in LRArchOverseasMirrors()) {
+        if (![candidates containsObject:mirror]) [candidates addObject:mirror];
+    }
+    return candidates;
+}
+
+/// 去掉结尾斜杠，用于拼接 sources.list 行。
+static NSString *LRTrimSlash(NSString *url) {
+    return [url hasSuffix:@"/"] ? [url substringToIndex:url.length - 1] : url;
+}
+
++ (NSString *)debianSourcesList {
+    NSArray *candidates = [self debianCandidates];
+    if (!candidates.count) return nil;
+    // 客户机内只写首选源；apt 自身会重试，且用户可在 Linux 里自行增补。
+    NSDictionary *primary = candidates.firstObject;
+    if ([primary[@"key"] isEqualToString:@"overseas"]) return nil;  // 保持内置默认
+    static NSString *const keyring = @"[signed-by=/usr/share/keyrings/debian-archive-keyring.gpg]";
+    return [NSString stringWithFormat:
+        @"# 由 LinuxRunner 按「软件源」设置生成。修改后重新同步会被覆盖。\n"
+        @"deb %s %s trixie main\n"
+        @"deb %s %s trixie-security main\n",
+        keyring, LRTrimSlash(primary[@"base"]), keyring, LRTrimSlash(primary[@"security"])];
+}
+
++ (NSString *)archMirrorlist {
+    NSArray *candidates = [self archCandidates];
+    if (!candidates.count) return nil;
+    if ([self region].length && [[self region] isEqualToString:@"overseas"]) return nil;  // 保持打包默认
+    NSMutableString *list = [NSMutableString stringWithString:
+        @"# 由 LinuxRunner 按「软件源」设置生成。国内镜像在前，官方镜像兜底。\n"
+        @"# 软件包始终按 Arch Linux ARM 密钥校验签名。\n"];
+    for (NSString *mirror in candidates) {
+        [list appendFormat:@"Server = %@/$arch/$repo\n", LRTrimSlash(mirror)];
+    }
+    return list;
+}
+
++ (NSArray<NSString *> *)alpineRepositories {
+    NSString *region = [self region];
+    NSString *key = [region isEqualToString:@"automatic"] ? @"tuna" : region;
+    NSString *base = LRMirrorProviders()[key][@"alpine"];
+    if (!base) base = LRMirrorProviders()[@"tuna"][@"alpine"];   // USTC 无 Alpine 仓库
+    if (!base) return nil;
+    if ([key isEqualToString:@"overseas"]) return nil;           // 保持构建期默认
+    return @[[NSString stringWithFormat:@"%@/v3.24/main", LRTrimSlash(base)],
+             [NSString stringWithFormat:@"%@/v3.24/community", LRTrimSlash(base)]];
+}
+
+#pragma mark 客户机系统配置
+
++ (BOOL)usesDomesticDNS {
+    NSString *mode = [self dnsMode];
+    if ([mode isEqualToString:@"domestic"]) return YES;
+    if ([mode isEqualToString:@"overseas"]) return NO;
+    return ![[self region] isEqualToString:@"overseas"];   // follow
+}
+
++ (NSString *)resolvConf {
+    if ([self usesDomesticDNS]) {
+        return @"# 由 LinuxRunner 按「DNS」设置生成\nnameserver 223.5.5.5\nnameserver 119.29.29.29\n";
+    }
+    if ([[self dnsMode] isEqualToString:@"overseas"]) {
+        return @"# 由 LinuxRunner 按「DNS」设置生成\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n";
+    }
+    return nil;   // follow + 国外源：保持内置默认
+}
+
++ (BOOL)usesChinese {
+    return [[self guestLanguage] isEqualToString:@"zh_CN"];
+}
+
++ (NSString *)localeIdentifier {
+    return [self usesChinese] ? @"zh_CN.UTF-8" : @"en_US.UTF-8";
+}
+
++ (NSString *)defaultLocale {
+    if (![self usesChinese]) return nil;
+    return [NSString stringWithFormat:@"LANG=%@\nLC_ALL=%@\n", [self localeIdentifier], [self localeIdentifier]];
+}
+
++ (NSString *)localeConf {
+    if (![self usesChinese]) return nil;
+    return [NSString stringWithFormat:@"LANG=%@\n", [self localeIdentifier]];
+}
+
++ (NSString *)localeGen {
+    if (![self usesChinese]) return nil;
+    return @"en_US.UTF-8 UTF-8\nzh_CN.UTF-8 UTF-8\n";
+}
+
++ (NSString *)localeProfile {
+    if (![self usesChinese]) return nil;
+    return [NSString stringWithFormat:
+        @"# 由 LinuxRunner 生成：让登录 shell 与桌面会话使用中文环境\n"
+        @"export LANG=%@\nexport LC_ALL=%@\n",
+        [self localeIdentifier], [self localeIdentifier]];
+}
+
++ (NSString *)timezoneFile {
+    NSString *timezone = [self guestTimezone];
+    if (!timezone.length || [timezone isEqualToString:@"UTC"]) return nil;
+    return [NSString stringWithFormat:@"%@\n", timezone];
+}
+
+@end
+
+#pragma mark - LRRuntimeBridge (LRMirrorSync)
+
+@implementation LRRuntimeBridge (LRMirrorSync)
+
++ (void)synchronizeMirrorSettings:(void (^)(NSError * _Nullable))completion {
+    void (^finish)(NSError * _Nullable) = completion ?: ^(NSError * _Nullable error) {};
+    if (![LRMirrorPolicy guestTimezone].length) { finish(nil); return; }
+    if (!self.isRunning) {
+        finish(lrError(ENOENT, @"Start the Linux runtime before synchronizing mirror settings."));
+        return;
+    }
+    // 令牌格式与 desktop-profile.sh 的 localize-* 分支一致：
+    // localize-<region>-<dns>-<lang>-<tz>
+    NSString *region = [LRMirrorPolicy resolvedRegion];
+    NSString *dns = [LRMirrorPolicy dnsMode];
+    NSString *language = [LRMirrorPolicy guestLanguage];
+    NSString *timezone = [LRMirrorPolicy guestTimezone];
+    NSString *token = [NSString stringWithFormat:@"localize-%@-%@-%@-%@", region, dns, language, timezone];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self runSupportInstall:@[token] title:@"Synchronizing Mirrors" progress:^(NSString *stage) {} completion:finish];
+    });
+}
+
 @end

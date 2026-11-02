@@ -579,6 +579,7 @@ struct ManagerView: View {
                 NavigationLink(destination: FileSharingView(environment: activeEnvironment, manager: manager, share: $share)) { Label("File Sharing", systemImage: "folder") }
                 NavigationLink(destination: DevicesView()) { Label("Devices", systemImage: "cable.connector") }
                 NavigationLink(destination: NetworkDiagnosticsView()) { Label("Network", systemImage: "network") }
+                NavigationLink(destination: MirrorLocalizationView()) { Label("Mirrors & Localization", systemImage: "globe.asia.australia") }
             }
             Section("Environment") {
                 NavigationLink(destination: LinuxUsersView()) { Label("Linux Users", systemImage: "person.2") }
@@ -2731,5 +2732,82 @@ private struct ProcessDetailView: View {
                 }
             } message: { Text(confirm == true ? "The process stops immediately without saving." : "The process is asked to quit and may save its state.") }
         }
+    }
+}
+
+
+/// 软件源与中文本地化设置。
+///
+/// 这里的选项立即影响之后的 Linux 下载，并决定新安装环境落盘时写入的
+/// 源列表、DNS、语言与时区。已安装的环境需要执行「同步到已安装环境」
+/// 才会重写其内部配置；该动作不会改动用户文件与已安装软件包。
+struct MirrorLocalizationView: View {
+    @State private var region = LRMirrorPolicy.region()
+    @State private var dnsMode = LRMirrorPolicy.dnsMode()
+    @State private var language = LRMirrorPolicy.guestLanguage()
+    @State private var timezone = LRMirrorPolicy.guestTimezone()
+    @State private var desktopSupport = LRMirrorPolicy.installsChineseDesktopSupport()
+    @State private var syncState: String?
+
+    private static let timezones = ["Asia/Shanghai", "Asia/Hong_Kong", "Asia/Singapore", "Asia/Tokyo", "Europe/London", "America/Los_Angeles", "UTC"]
+
+    var body: some View {
+        List {
+            Section {
+                Picker(selection: $region) {
+                    ForEach(LRMirrorPolicy.availableRegions(), id: \.self) { item in
+                        Text(LRMirrorPolicy.regionDisplayName(item)).tag(item)
+                    }
+                } label: { Label("Package Source", systemImage: "arrow.triangle.2.circlepath") }
+                    .onChange(of: region) { LRMirrorPolicy.setRegion($0) }
+                HStack {
+                    Text("Active Provider")
+                    Spacer()
+                    Text(LRMirrorPolicy.activeProviderName()).font(.footnote).foregroundColor(.secondary)
+                }
+            } header: { Text("Package Source") } footer: {
+                Text("Applies to Linux downloads and to the mirror list written into newly installed environments. Domestic mirrors are tried in order and fall back to the official source on failure. Debian packages are still verified against the pinned SHA-256 manifest and Arch packages against their signatures, so switching mirrors does not weaken integrity checks.")
+            }
+
+            Section {
+                Picker(selection: $dnsMode) {
+                    Text("Follow Package Source").tag("follow")
+                    Text("Domestic (AliDNS + DNSPod)").tag("domestic")
+                    Text("Overseas (Cloudflare + Google)").tag("overseas")
+                } label: { Label("Guest DNS", systemImage: "network") }
+                    .onChange(of: dnsMode) { LRMirrorPolicy.setDnsMode($0) }
+            } header: { Text("Guest DNS") } footer: {
+                Text("The guest resolver defaults to 8.8.8.8 and 1.1.1.1, which often fail to resolve from mainland China. Domestic DNS is required for domestic mirrors to work reliably inside Linux.")
+            }
+
+            Section {
+                Picker(selection: $language) {
+                    Text("Chinese (Simplified)").tag("zh_CN")
+                    Text("English").tag("en_US")
+                } label: { Label("System Language", systemImage: "character.book.closed") }
+                    .onChange(of: language) { LRMirrorPolicy.setGuestLanguage($0) }
+                Picker(selection: $timezone) {
+                    ForEach(Self.timezones, id: \.self) { item in Text(item).tag(item) }
+                } label: { Label("Time Zone", systemImage: "clock") }
+                    .onChange(of: timezone) { LRMirrorPolicy.setGuestTimezone($0) }
+                Toggle(isOn: $desktopSupport) { Label("Chinese Fonts and Translations", systemImage: "textformat") }
+                    .onChange(of: desktopSupport) { LRMirrorPolicy.setInstallsChineseDesktopSupport($0) }
+            } header: { Text("Localization") } footer: {
+                Text("Newly installed environments are written with LANG=zh_CN.UTF-8, a generated locale, the selected time zone and CJK fonts installed with the desktop components. Alpine uses musl, whose Chinese locale support is limited to UTF-8 display.")
+            }
+
+            Section {
+                Button {
+                    LRRuntimeBridge.synchronizeMirrorSettings { error in
+                        syncState = error != nil ? error?.localizedDescription : "Mirror settings synchronized."
+                    }
+                } label: { Label("Sync to Installed Environment", systemImage: "arrow.clockwise.circle") }
+                    .disabled(!LRRuntimeBridge.isRunning())
+                if let syncState { Text(syncState).font(.footnote).foregroundColor(.secondary) }
+            } header: { Text("Installed Environments") } footer: {
+                Text("Rewrites the package sources, resolver, locale and time zone of the running environment. Start the Linux runtime first. Your files and installed packages are not changed.")
+            }
+        }
+        .navigationTitle("Mirrors & Localization")
     }
 }

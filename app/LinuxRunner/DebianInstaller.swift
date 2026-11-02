@@ -81,22 +81,45 @@ private final class InstallCancellation: @unchecked Sendable {
                     let valid = cached?.valid == true
                     DiagnosticCenter.installer(2, message: "stage=cache package=\(package.Package) index=\(index) source=\(manifest.repository) filename=\(package.Filename) expected_size=\(package.Size) expected_sha256=\(package.SHA256) valid=\(valid) actual_size=\(cached?.size ?? -1) actual_sha256=\(cached?.sha ?? "unavailable")")
                     if !valid {
-                        let url = URL(string: manifest.repository + package.Filename)!
-                        DiagnosticCenter.installer(2, message: "stage=download package=\(package.Package) index=\(index) URL=\(url.absoluteString) filename=\(package.Filename) cancelled=\(token.check())")
-                        let download: URL; let response: URLResponse
-                        do { (download, response) = try await URLSession.shared.download(from: url) }
-                        catch { DiagnosticCenter.installer(0, message: "stage=download package=\(package.Package) index=\(index) cancelled=\(token.check()) error=\(error.localizedDescription)"); throw error }
-                        defer { try? FileManager.default.removeItem(at: download) }
-                        let http = (response as? HTTPURLResponse)?.statusCode ?? -1
-                        DiagnosticCenter.installer(2, message: "stage=http package=\(package.Package) index=\(index) status=\(http) received_file=\(download.path)")
-                        guard http == 200 else { throw DebianInstallError.failure("Download failed for \(package.Package): HTTP \(http).") }
-                        let checked = try Self.verification(download, package: package)
-                        DiagnosticCenter.installer(checked.valid ? 2 : 0, message: "stage=verification package=\(package.Package) index=\(index) expected_size=\(package.Size) actual_size=\(checked.size) expected_sha256=\(package.SHA256) actual_sha256=\(checked.sha) result=\(checked.valid ? "PASS" : "FAIL")")
-                        guard checked.valid else { throw DebianInstallError.failure("Integrity verification failed for \(package.Package): expected \(package.Size) bytes, received \(checked.size); SHA-256 \(checked.sha == package.SHA256 ? "matches" : "mismatch").") }
-                        do {
-                            try? FileManager.default.removeItem(at: destination)
-                            try FileManager.default.moveItem(at: download, to: destination)
-                        } catch { DiagnosticCenter.installer(0, message: "stage=cache_publish package=\(package.Package) destination=\(destination.path) error=\(error.localizedDescription)"); throw error }
+                        // 按「软件源」设置依次尝试候选镜像（国内源优先，官方源兜底）。
+                        // 每个包仍按官方固定清单做 SHA-256 与大小校验，换源不降低完整性保证。
+                        let candidates = LRMirrorPolicy.debianCandidates()
+                        var lastError = "no mirror reachable"
+                        var published = false
+                        for candidate in candidates {
+                            guard let base = candidate["base"], let url = URL(string: base + package.Filename) else { continue }
+                            if token.check() { throw CancellationError() }
+                            let mirrorName = candidate["name"] ?? "unknown"
+                            DiagnosticCenter.installer(2, message: "stage=download package=\(package.Package) index=\(index) mirror=\(mirrorName) URL=\(url.absoluteString) filename=\(package.Filename) cancelled=\(token.check())")
+                            let download: URL; let response: URLResponse
+                            do { (download, response) = try await URLSession.shared.download(from: url) }
+                            catch {
+                                DiagnosticCenter.installer(0, message: "stage=download package=\(package.Package) index=\(index) mirror=\(mirrorName) cancelled=\(token.check()) error=\(error.localizedDescription)")
+                                lastError = error.localizedDescription
+                                continue
+                            }
+                            let http = (response as? HTTPURLResponse)?.statusCode ?? -1
+                            DiagnosticCenter.installer(2, message: "stage=http package=\(package.Package) index=\(index) mirror=\(mirrorName) status=\(http) received_file=\(download.path)")
+                            guard http == 200 else {
+                                lastError = "HTTP \(http) from \(mirrorName)"
+                                try? FileManager.default.removeItem(at: download)
+                                continue
+                            }
+                            let checked = try Self.verification(download, package: package)
+                            DiagnosticCenter.installer(checked.valid ? 2 : 0, message: "stage=verification package=\(package.Package) index=\(index) mirror=\(mirrorName) expected_size=\(package.Size) actual_size=\(checked.size) expected_sha256=\(package.SHA256) actual_sha256=\(checked.sha) result=\(checked.valid ? "PASS" : "FAIL")")
+                            // 校验失败视为该镜像不可信，直接报错，绝不落到下一个镜像继续尝试。
+                            guard checked.valid else {
+                                try? FileManager.default.removeItem(at: download)
+                                throw DebianInstallError.failure("Integrity verification failed for \(package.Package) from \(mirrorName): expected \(package.Size) bytes, received \(checked.size); SHA-256 \(checked.sha == package.SHA256 ? "matches" : "mismatch").")
+                            }
+                            do {
+                                try? FileManager.default.removeItem(at: destination)
+                                try FileManager.default.moveItem(at: download, to: destination)
+                            } catch { DiagnosticCenter.installer(0, message: "stage=cache_publish package=\(package.Package) destination=\(destination.path) error=\(error.localizedDescription)"); throw error }
+                            published = true
+                            break
+                        }
+                        guard published else { throw DebianInstallError.failure("Download failed for \(package.Package): \(lastError)") }
                     }
                     paths.append(destination.path)
                 }
@@ -111,7 +134,6 @@ private final class InstallCancellation: @unchecked Sendable {
                 message = "Importing isolated Debian filesystem"
                 DiagnosticCenter.installer(2, message: "stage=fakefs_import root=\(root) output=\(archive.path) cancelled=\(token.check())")
                 let sha = try Self.sha256(archive)
-                let pathsCopy = paths
                 try await Task.detached(priority: .utility) {
                     try LRRuntimeBridge.importVerifiedEnvironment(archive, root: root, sha256: sha, progress: { value, _ in Task { @MainActor in self.fraction = 0.75 + value * 0.25 } }, cancel: { token.check() })
                 }.value

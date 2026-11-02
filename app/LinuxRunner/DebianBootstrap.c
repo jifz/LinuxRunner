@@ -174,12 +174,16 @@ package_error:
     if(file(s,writer,"var/lib/dpkg/status",status?status:"",status_size,0644))goto done;
     CONFIG("var/lib/dpkg/available","",0644);CONFIG("etc/hostname","linuxrunner\n",0644);
     CONFIG("etc/hosts","127.0.0.1 localhost linuxrunner\n::1 localhost ip6-localhost\n",0644);
-    CONFIG("etc/resolv.conf","nameserver 1.1.1.1\nnameserver 8.8.8.8\n",0644);
+    CONFIG("etc/resolv.conf",(options&&options->resolv_conf)?options->resolv_conf:"nameserver 1.1.1.1\nnameserver 8.8.8.8\n",0644);
     CONFIG("etc/passwd","root:x:0:0:root:/root:/bin/bash\n_apt:x:100:65534::/nonexistent:/usr/sbin/nologin\n",0644);
     CONFIG("etc/group","root:x:0:\nusers:x:100:\nnogroup:x:65534:\n",0644);CONFIG("etc/shadow","root:*:20000:0:99999:7:::\n",0600);
-    CONFIG("etc/apt/sources.list","deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main\ndeb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main\n",0644);
+    CONFIG("etc/apt/sources.list",(options&&options->apt_sources)?options->apt_sources:"deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main\ndeb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main\n",0644);
+    if(options&&options->default_locale)CONFIG("etc/default/locale",options->default_locale,0644);
+    if(options&&options->locale_gen)CONFIG("etc/locale.gen",options->locale_gen,0644);
+    if(options&&options->locale_profile)CONFIG("etc/profile.d/linuxrunner-locale.sh",options->locale_profile,0755);
+    if(options&&options->timezone_file)CONFIG("etc/timezone",options->timezone_file,0644);
     CONFIG("usr/sbin/policy-rc.d","#!/bin/sh\n# No service manager/kernel is booted in this userspace environment.\nexit 101\n",0755);
-    CONFIG("usr/lib/linuxrunner/initialize-debian.sh","#!/bin/sh\nset -eu\nexport DEBIAN_FRONTEND=noninteractive\nmkdir -p /tmp /run /proc /dev /root /usr/local /var/lib/linuxrunner /var/lib/dpkg/updates /var/lib/apt/lists/partial /var/cache/apt/archives/partial\nchmod 1777 /tmp\nif [ ! -f /var/lib/linuxrunner/initialized ]; then\n if [ ! -f /var/lib/linuxrunner/accounts-initialized ]; then\n cp /usr/share/base-passwd/passwd.master /etc/passwd\n cp /usr/share/base-passwd/group.master /etc/group\n if ! grep -q '^_apt:' /etc/passwd; then\n printf '_apt:x:100:65534::/nonexistent:/usr/sbin/nologin\\n' >>/etc/passwd\n fi\n touch /var/lib/linuxrunner/accounts-initialized\n fi\n echo 'DEBIAN_INIT: configuring authenticated official packages'\n dpkg --configure -a\n update-ca-certificates\n touch /var/lib/linuxrunner/initialized\n echo 'DEBIAN_INIT: PASS'\nfi\n",0755);
+    CONFIG("usr/lib/linuxrunner/initialize-debian.sh","#!/bin/sh\nset -eu\nexport DEBIAN_FRONTEND=noninteractive\nmkdir -p /tmp /run /proc /dev /root /usr/local /var/lib/linuxrunner /var/lib/dpkg/updates /var/lib/apt/lists/partial /var/cache/apt/archives/partial\nchmod 1777 /tmp\nif [ ! -f /var/lib/linuxrunner/initialized ]; then\n if [ ! -f /var/lib/linuxrunner/accounts-initialized ]; then\n cp /usr/share/base-passwd/passwd.master /etc/passwd\n cp /usr/share/base-passwd/group.master /etc/group\n if ! grep -q '^_apt:' /etc/passwd; then\n printf '_apt:x:100:65534::/nonexistent:/usr/sbin/nologin\\n' >>/etc/passwd\n fi\n touch /var/lib/linuxrunner/accounts-initialized\n fi\n echo 'DEBIAN_INIT: configuring authenticated official packages'\n dpkg --configure -a\n update-ca-certificates\n if [ -f /etc/locale.gen ] && command -v locale-gen >/dev/null 2>&1; then locale-gen >/dev/null 2>&1 || true; fi\n if [ -f /etc/timezone ] && [ -d /usr/share/zoneinfo ]; then ln -sf \"/usr/share/zoneinfo/$(cat /etc/timezone)\" /etc/localtime 2>/dev/null || true; fi\n touch /var/lib/linuxrunner/initialized\n echo 'DEBIAN_INIT: PASS'\nfi\n",0755);
     CONFIG("usr/lib/linuxrunner/init.sh","#!/bin/sh\n/usr/lib/linuxrunner/initialize-debian.sh >/var/log/linuxrunner-initialize.log 2>&1\nwhile :; do sleep 3600; done\n",0755);
 done:
     if(!s->result&&cancelled(s)) { /* cancellation recorded above */ }
@@ -304,7 +308,12 @@ package_error:
     ARCH_CONFIG("var/lib/pacman/local/ALPM_DB_VERSION", "9\n", 0644);
     ARCH_CONFIG("etc/hostname", "linuxrunner\n", 0644);
     ARCH_CONFIG("etc/hosts", "127.0.0.1 localhost linuxrunner\n::1 localhost\n", 0644);
-    ARCH_CONFIG("etc/resolv.conf", "nameserver 1.1.1.1\nnameserver 8.8.8.8\n", 0644);
+    ARCH_CONFIG("etc/resolv.conf", (options && options->resolv_conf) ? options->resolv_conf : "nameserver 1.1.1.1\nnameserver 8.8.8.8\n", 0644);
+    if (options && options->arch_mirrorlist) ARCH_CONFIG("etc/pacman.d/mirrorlist", options->arch_mirrorlist, 0644);
+    if (options && options->locale_conf) ARCH_CONFIG("etc/locale.conf", options->locale_conf, 0644);
+    if (options && options->locale_gen) ARCH_CONFIG("etc/locale.gen", options->locale_gen, 0644);
+    if (options && options->locale_profile) ARCH_CONFIG("etc/profile.d/linuxrunner-locale.sh", options->locale_profile, 0755);
+    if (options && options->timezone_file) ARCH_CONFIG("etc/timezone", options->timezone_file, 0644);
     // First boot: what pacman's install scripts and ALPM hooks would have done
     // (no package manager ran while assembling), then the pacman keyring.
     ARCH_CONFIG("usr/lib/linuxrunner/initialize-arch.sh",
@@ -345,6 +354,8 @@ package_error:
         "update-ca-trust >/dev/null 2>&1\n"
         "pacman-key --init >/dev/null 2>&1 || exit 1\n"
         "pacman-key --populate archlinuxarm >/dev/null 2>&1 || exit 1\n"
+        "if [ -f /etc/locale.gen ] && command -v locale-gen >/dev/null 2>&1; then locale-gen >/dev/null 2>&1 || true; fi\n"
+        "if [ -f /etc/timezone ] && [ -d /usr/share/zoneinfo ]; then ln -sf \"/usr/share/zoneinfo/$(cat /etc/timezone)\" /etc/localtime 2>/dev/null || true; fi\n"
         "touch /var/lib/linuxrunner/initialized\n"
         "echo 'ARCH_INIT: PASS'\n", 0755);
     ARCH_CONFIG("usr/lib/linuxrunner/init.sh",

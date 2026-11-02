@@ -446,3 +446,25 @@
 "iOS Files: On My iPhone/iPad → LinuxRunner → Shared → " = "iOS Files: On My iPhone/iPad → LinuxRunner → Shared → ";
 "iOS Network Path" = "iOS Network Path";
 "iOS allows one Linux runtime per app launch, so this restart is needed once." = "iOS allows one Linux runtime per app launch, so this restart is needed once.";
+
+/* 软件源与本地化 */
+"Mirrors & Localization" = "Mirrors & Localization";
+"Package Source" = "Package Source";
+"Active Provider" = "Active Provider";
+"Guest DNS" = "Guest DNS";
+"Follow Package Source" = "Follow Package Source";
+"Domestic (AliDNS + DNSPod)" = "Domestic (AliDNS + DNSPod)";
+"Overseas (Cloudflare + Google)" = "Overseas (Cloudflare + Google)";
+"Localization" = "Localization";
+"System Language" = "System Language";
+"Chinese (Simplified)" = "Chinese (Simplified)";
+"English" = "English";
+"Time Zone" = "Time Zone";
+"Chinese Fonts and Translations" = "Chinese Fonts and Translations";
+"Installed Environments" = "Installed Environments";
+"Sync to Installed Environment" = "Sync to Installed Environment";
+"Mirror settings synchronized." = "Mirror settings synchronized.";
+"Applies to Linux downloads and to the mirror list written into newly installed environments. Domestic mirrors are tried in order and fall back to the official source on failure. Debian packages are still verified against the pinned SHA-256 manifest and Arch packages against their signatures, so switching mirrors does not weaken integrity checks." = "Applies to Linux downloads and to the mirror list written into newly installed environments. Domestic mirrors are tried in order and fall back to the official source on failure. Debian packages are still verified against the pinned SHA-256 manifest and Arch packages against their signatures, so switching mirrors does not weaken integrity checks.";
+"The guest resolver defaults to 8.8.8.8 and 1.1.1.1, which often fail to resolve from mainland China. Domestic DNS is required for domestic mirrors to work reliably inside Linux." = "The guest resolver defaults to 8.8.8.8 and 1.1.1.1, which often fail to resolve from mainland China. Domestic DNS is required for domestic mirrors to work reliably inside Linux.";
+"Newly installed environments are written with LANG=zh_CN.UTF-8, a generated locale, the selected time zone and CJK fonts installed with the desktop components. Alpine uses musl, whose Chinese locale support is limited to UTF-8 display." = "Newly installed environments are written with LANG=zh_CN.UTF-8, a generated locale, the selected time zone and CJK fonts installed with the desktop components. Alpine uses musl, whose Chinese locale support is limited to UTF-8 display.";
+"Rewrites the package sources, resolver, locale and time zone of the running environment. Start the Linux runtime first. Your files and installed packages are not changed." = "Rewrites the package sources, resolver, locale and time zone of the running environment. Start the Linux runtime first. Your files and installed packages are not changed.";

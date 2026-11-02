@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "1",
+  "version": "2",
   "resources": [
     {
       "name": "audio-relay.c",
@@ -44,7 +44,7 @@
     },
     {
       "name": "desktop-components.sh",
-      "sha256": "70d3176a1d7b0ddc12a4df4906c05f5abaa5d4b3999a4bf66c60dbbb49e0f26c",
+      "sha256": "4bf56ff69302119504395e8e94271408a11941415ab985b2677846379da31f68",
       "mode": "0755"
     },
     {
@@ -84,7 +84,7 @@
     },
     {
       "name": "desktop-profile.sh",
-      "sha256": "a5ca752fae6083c67680f5d194f2972c54971b982f2f04a4abe0c50bff8699c6",
+      "sha256": "e7d8efc868d978c8e3b7dc0e6e895be745c1fa41639cee992ddd6a0619f104d2",
       "mode": "0755"
     },
     {
@@ -314,7 +314,7 @@
     },
     {
       "name": "installer-run.sh",
-      "sha256": "02f0d885bd489f862d9b27842495bfc6bf487514926dc8a3ad4ab25fe77280b7",
+      "sha256": "07bba63a56f47666272743e26313de70fb2914560b8d3e3bd7dc410537a11471",
       "mode": "0755"
     },
     {
@@ -409,7 +409,7 @@
     },
     {
       "name": "session.sh",
-      "sha256": "7d33bc02a949ae221e24f9bf5861a8fb0238211b3c125d2f1d1a2bb46bd60ba0",
+      "sha256": "4c3d24187edfb543855a7b697fceb23d985402028da841bf9de5b53953df9697",
       "mode": "0755"
     },
     {
@@ -429,7 +429,7 @@
     },
     {
       "name": "support-version",
-      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
       "mode": "0644"
     },
     {

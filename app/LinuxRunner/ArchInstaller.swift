@@ -196,7 +196,9 @@ private final class ArchCancellation: @unchecked Sendable {
 }
 
 @MainActor final class ArchInstaller: ObservableObject {
-    static let mirrors = ["https://fl.us.mirror.archlinuxarm.org/aarch64", "https://de.mirror.archlinuxarm.org/aarch64", "https://eu.mirror.archlinuxarm.org/aarch64"]
+    /// 候选镜像由「软件源」设置决定：国内源在前，官方海外镜像兜底。
+    /// 下载逐个尝试，失败自动降级；软件包始终按 Arch Linux ARM 密钥校验签名。
+    static var mirrors: [String] { LRMirrorPolicy.archCandidates() }
     @Published var message = "Arch Linux ARM (aarch64) · official signed packages · experimental"
     @Published var fraction = 0.0
     @Published var running = false { didSet { if running != oldValue { running ? LRRuntimeBridge.beginAwake("arch-install") : LRRuntimeBridge.endAwake("arch-install") } } }
@@ -275,8 +277,11 @@ private final class ArchCancellation: @unchecked Sendable {
                 let archive = temporary.appendingPathComponent("\(root).tar.gz")
                 defer { try? FileManager.default.removeItem(at: archive) }
                 message = "Assembling verified Arch Linux ARM packages"
+                let pathsCopy = paths
+                let namesCopy = names
+                let descriptionsCopy = descriptions
                 try await Task.detached(priority: .utility) {
-                    try LRRuntimeBridge.assembleArchPackages(paths, localNames: names, localDescriptions: descriptions, toArchive: archive,
+                    try LRRuntimeBridge.assembleArchPackages(pathsCopy, localNames: namesCopy, localDescriptions: descriptionsCopy, toArchive: archive,
                                                              progress: { value in Task { @MainActor in self.fraction = 0.6 + value * 0.2 } }, cancel: { token.check() })
                 }.value
                 message = "Importing isolated Arch Linux ARM filesystem"

@@ -209,18 +209,28 @@ repair() {
     want_accounts=${1:-}
     verify_resources
     [ "$(id -u)" = 0 ] || support_fail PROFILE root-required
+    # LinuxRunner 本地化：/etc/profile.d/linuxrunner-locale.sh 存在表示用户选择了中文环境，
+    # 此时一并安装中日韩字体与 locale 工具，否则终端和桌面里的中文会显示为方块。
+    # 未选择中文时这三个变量为空，不会给安装包列表增加任何内容。
+    lr_cjk_debian= lr_cjk_alpine= lr_cjk_arch=
+    if [ -f /etc/profile.d/linuxrunner-locale.sh ]; then
+        lr_cjk_debian="fonts-noto-cjk locales"
+        lr_cjk_alpine="font-noto-cjk"
+        lr_cjk_arch="noto-fonts-cjk"
+        stage "Installing Chinese fonts and locale support"
+    fi
     if gui_missing; then
-        install_packages "X server and display support" busybox procps xvfb x11vnc xauth x11-xserver-utils x11-utils x11-apps libx11-dev libxcb1-dev build-essential pkg-config binutils xterm xfonts-base fonts-dejavu-core fontconfig dbus-daemon dbus-x11 librsvg2-common \
-            -- xvfb x11vnc xclock libx11-dev libxcb-dev build-base pkgconf binutils xterm font-misc-misc font-dejavu fontconfig xauth setxkbmap xmodmap dbus \
-            -- procps-ng xorg-server-xvfb x11vnc xorg-xauth xorg-xset xorg-xrandr xorg-xprop xorg-xwininfo xorg-xdpyinfo xorg-xsetroot xorg-xmodmap xorg-setxkbmap xorg-xclock libx11 libxcb gcc make pkgconf binutils xterm xorg-fonts-misc ttf-dejavu fontconfig dbus librsvg || support_fail PROFILE gui-packages
+        install_packages "X server and display support" busybox procps xvfb x11vnc xauth x11-xserver-utils x11-utils x11-apps libx11-dev libxcb1-dev build-essential pkg-config binutils xterm xfonts-base fonts-dejavu-core fontconfig dbus-daemon dbus-x11 librsvg2-common $lr_cjk_debian \
+            -- xvfb x11vnc xclock libx11-dev libxcb-dev build-base pkgconf binutils xterm font-misc-misc font-dejavu fontconfig xauth setxkbmap xmodmap dbus $lr_cjk_alpine \
+            -- procps-ng xorg-server-xvfb x11vnc xorg-xauth xorg-xset xorg-xrandr xorg-xprop xorg-xwininfo xorg-xdpyinfo xorg-xsetroot xorg-xmodmap xorg-setxkbmap xorg-xclock libx11 libxcb gcc make pkgconf binutils xterm xorg-fonts-misc ttf-dejavu fontconfig dbus librsvg $lr_cjk_arch || support_fail PROFILE gui-packages
         mkdir -p /var/lib/dbus; dbus-uuidgen --ensure 2>/dev/null || true
     fi
     if gui_missing || gui_helpers_stale; then build_gui_helpers || support_fail PROFILE gui-helpers; fi
     if desktop_missing; then
         if ! desktop_commands_present; then
-            install_packages "desktop (window manager, panel, file manager)" openbox lxpanel pcmanfm adwaita-icon-theme fonts-dejavu-core dbus-daemon dbus-bin xterm \
-                -- openbox xfce4-panel pcmanfm adwaita-icon-theme gdk-pixbuf-loaders font-dejavu dbus xterm \
-                -- openbox lxqt-panel pcmanfm-qt adwaita-icon-theme ttf-dejavu dbus xterm || support_fail PROFILE desktop-packages
+            install_packages "desktop (window manager, panel, file manager)" openbox lxpanel pcmanfm adwaita-icon-theme fonts-dejavu-core dbus-daemon dbus-bin xterm $lr_cjk_debian \
+                -- openbox xfce4-panel pcmanfm adwaita-icon-theme gdk-pixbuf-loaders font-dejavu dbus xterm $lr_cjk_alpine \
+                -- openbox lxqt-panel pcmanfm-qt adwaita-icon-theme ttf-dejavu dbus xterm $lr_cjk_arch || support_fail PROFILE desktop-packages
         fi
         stage "Building desktop helpers"
         build_desktop_probe || support_fail PROFILE desktop-probe
@@ -338,5 +348,104 @@ case "$mode" in
                 swaybg papirus-icon-theme inter-font ttf-jetbrains-mono || echo 'PROFILE: hyprland appearance packages unavailable; plain background'
         fi
         echo 'PROFILE: hyprland=PASS';;
+    localize-*)
+        # LinuxRunner 本地化同步：把「软件源与本地化」设置写入当前运行的环境。
+        # 令牌格式 localize-<region>-<dns>-<lang>-<tz>，由宿主 LRMirrorPolicy 生成，
+        # region 已是解析后的具体提供方（automatic 在宿主侧解析为清华源）。
+        # 只重写源/解析器/语言/时区配置，不改动用户文件与已安装软件包。
+        # 注意：下方镜像地址表必须与 RuntimeBridge.m 的 LRMirrorProviders() 保持一致。
+        stage "Synchronizing package sources and localization"
+        lr_token=${1#localize-}
+        lr_region=$(printf '%s' "$lr_token" | cut -d- -f1)
+        lr_dns=$(printf '%s' "$lr_token" | cut -d- -f2)
+        lr_lang=$(printf '%s' "$lr_token" | cut -d- -f3)
+        lr_tz=$(printf '%s' "$lr_token" | cut -d- -f4-)
+        lr_deb= lr_debsec= lr_alp=
+        case "$lr_region" in
+            tuna)    lr_deb=https://mirrors.tuna.tsinghua.edu.cn/debian; lr_debsec=https://mirrors.tuna.tsinghua.edu.cn/debian-security; lr_alp=https://mirrors.tuna.tsinghua.edu.cn/alpine;;
+            aliyun)  lr_deb=https://mirrors.aliyun.com/debian; lr_debsec=https://mirrors.aliyun.com/debian-security; lr_alp=https://mirrors.aliyun.com/alpine;;
+            tencent) lr_deb=https://mirrors.cloud.tencent.com/debian; lr_debsec=https://mirrors.cloud.tencent.com/debian-security; lr_alp=https://mirrors.cloud.tencent.com/alpine;;
+            ustc)    lr_deb=https://mirrors.ustc.edu.cn/debian; lr_debsec=https://mirrors.ustc.edu.cn/debian-security; lr_alp=https://mirrors.tuna.tsinghua.edu.cn/alpine;;
+            *)       lr_deb=https://deb.debian.org/debian; lr_debsec=https://security.debian.org/debian-security; lr_alp=https://dl-cdn.alpinelinux.org/alpine;;
+        esac
+        # Arch：所选提供方在前，其余国内源与官方镜像依次兜底。
+        lr_arch_all="https://mirrors.tuna.tsinghua.edu.cn/archlinuxarm https://mirrors.aliyun.com/archlinuxarm https://mirrors.cloud.tencent.com/archlinuxarm https://mirrors.ustc.edu.cn/archlinuxarm"
+        lr_arch_first=
+        case "$lr_region" in
+            tuna)    lr_arch_first=https://mirrors.tuna.tsinghua.edu.cn/archlinuxarm;;
+            aliyun)  lr_arch_first=https://mirrors.aliyun.com/archlinuxarm;;
+            tencent) lr_arch_first=https://mirrors.cloud.tencent.com/archlinuxarm;;
+            ustc)    lr_arch_first=https://mirrors.ustc.edu.cn/archlinuxarm;;
+        esac
+        lr_write() { printf '%s\n' "$2" > "$1" && echo "LOCALIZE: wrote $1"; }
+        # DNS：跟随档位，或按用户显式选择。
+        case "$lr_dns" in
+            domestic) lr_write /etc/resolv.conf 'nameserver 223.5.5.5
+nameserver 119.29.29.29';;
+            overseas) lr_write /etc/resolv.conf 'nameserver 1.1.1.1
+nameserver 8.8.8.8';;
+            *) if [ "$lr_region" = overseas ]; then
+                   lr_write /etc/resolv.conf 'nameserver 1.1.1.1
+nameserver 8.8.8.8'
+               else
+                   lr_write /etc/resolv.conf 'nameserver 223.5.5.5
+nameserver 119.29.29.29'
+               fi;;
+        esac
+        # 语言与时区。musl（Alpine）没有 locale-gen，只写环境文件。
+        if [ "$lr_lang" = zh_CN ]; then
+            lr_write /etc/profile.d/linuxrunner-locale.sh 'export LANG=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8'
+            chmod 0755 /etc/profile.d/linuxrunner-locale.sh
+            case "$distro" in
+                alpine) : ;;
+                arch|archarm) lr_write /etc/locale.conf 'LANG=zh_CN.UTF-8'
+                              lr_write /etc/locale.gen 'en_US.UTF-8 UTF-8
+zh_CN.UTF-8 UTF-8';;
+                *) lr_write /etc/default/locale 'LANG=zh_CN.UTF-8
+LC_ALL=zh_CN.UTF-8'
+                   lr_write /etc/locale.gen 'en_US.UTF-8 UTF-8
+zh_CN.UTF-8 UTF-8';;
+            esac
+            rm -f /etc/profile.d/linuxrunner-locale.sh.disabled 2>/dev/null || true
+        else
+            rm -f /etc/profile.d/linuxrunner-locale.sh /etc/default/locale /etc/locale.conf 2>/dev/null || true
+        fi
+        case "$lr_tz" in
+            ''|UTC) : ;;
+            *) printf '%s\n' "$lr_tz" > /etc/timezone
+               if [ -d /usr/share/zoneinfo ]; then ln -sf "/usr/share/zoneinfo/$lr_tz" /etc/localtime 2>/dev/null || true; fi
+               echo "LOCALIZE: timezone=$lr_tz";;
+        esac
+        # 各发行版的软件源。
+        case "$distro" in
+            arch|archarm)
+                {
+                    echo '# 由 LinuxRunner 按「软件源」设置生成。国内镜像在前，官方镜像兜底。'
+                    echo '# 软件包始终按 Arch Linux ARM 密钥校验签名。'
+                    [ -n "$lr_arch_first" ] && echo "Server = $lr_arch_first/\$arch/\$repo"
+                    for m in $lr_arch_all; do
+                        [ "$m" = "$lr_arch_first" ] && continue
+                        echo "Server = $m/\$arch/\$repo"
+                    done
+                    echo 'Server = http://mirror.archlinuxarm.org/$arch/$repo'
+                } > /etc/pacman.d/mirrorlist
+                echo 'LOCALIZE: wrote /etc/pacman.d/mirrorlist';;
+            alpine)
+                {
+                    echo '# 由 LinuxRunner 按「软件源」设置生成。'
+                    echo "$lr_alp/v3.24/main"
+                    echo "$lr_alp/v3.24/community"
+                } > /etc/apk/repositories
+                echo 'LOCALIZE: wrote /etc/apk/repositories';;
+            *)
+                lr_write /etc/apt/sources.list "deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] $lr_deb trixie main
+deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] $lr_debsec trixie-security main"
+                if have locale-gen && [ -f /etc/locale.gen ]; then locale-gen >/dev/null 2>&1 || echo 'LOCALIZE: locale-gen failed; display still works with UTF-8'; fi;;
+        esac
+        if { [ "$distro" = arch ] || [ "$distro" = archarm ]; } && have locale-gen && [ -f /etc/locale.gen ]; then
+            locale-gen >/dev/null 2>&1 || echo 'LOCALIZE: locale-gen failed; display still works with UTF-8'
+        fi
+        echo "PROFILE: localize=PASS region=$lr_region dns=$lr_dns lang=$lr_lang tz=$lr_tz distro=$distro";;
     *) exit 2;;
 esac

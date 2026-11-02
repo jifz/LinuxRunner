@@ -246,6 +246,7 @@ elif [ "$environment" = hyprland ]; then
  # keyboard, so the viewer and external display are those of every desktop.
  export XDG_CURRENT_DESKTOP=Hyprland XDG_SESSION_TYPE=wayland DESKTOP_SESSION=hyprland LIBSEAT_BACKEND=seatd
  # foot and other clients need a UTF-8 locale; C.UTF-8 exists everywhere.
+ [ -f /etc/profile.d/linuxrunner-locale.sh ] && . /etc/profile.d/linuxrunner-locale.sh 2>/dev/null
  case "${LANG:-}" in *UTF-8*|*utf8*) ;; *) export LANG=C.UTF-8;; esac
  export AQ_NO_ATOMIC=1 AQ_NO_MODIFIERS=1
  if [ -c /dev/dri/card1 ]; then

@@ -173,5 +173,66 @@ void LRSetDatalessMaterialization(void);
 /// stage, detail (NSString), fraction (NSNumber 0…1, or -1 when not measurable),
 /// elapsed (NSNumber seconds), phase ("running" | "succeeded" | "failed"),
 /// error and log (NSString, failure only).
+
+/// LinuxRunner 国内镜像源与中文本地化策略。
+/// 唯一事实来源：宿主侧下载与客户机内落盘的源配置都由这里产出。
+/// 所有镜像地址均经实际连通性验证（2026-11-02）。
+@interface LRMirrorPolicy : NSObject
+/// 软件源档位：automatic | overseas | tuna | aliyun | ustc | tencent
++ (NSString *)region;
++ (void)setRegion:(NSString *)region;
++ (NSArray<NSString *> *)availableRegions;
+/// UI 显示名（已本地化键）
++ (NSString *)regionDisplayName:(NSString *)region;
+/// 当前档位实际使用的首选提供方名称（automatic 时为候选列表首项）
++ (NSString *)activeProviderName;
+/// 解析后的具体提供方 key（automatic 解析为候选首项），用于传给客户机脚本
++ (NSString *)resolvedRegion;
+
+/// 客户机 DNS：follow | domestic | overseas
++ (NSString *)dnsMode;
++ (void)setDnsMode:(NSString *)mode;
+/// 客户机语言：zh_CN | en_US
++ (NSString *)guestLanguage;
++ (void)setGuestLanguage:(NSString *)language;
+/// 客户机时区标识符，例如 Asia/Shanghai、UTC
++ (NSString *)guestTimezone;
++ (void)setGuestTimezone:(NSString *)timezone;
+/// 是否随桌面组件一起安装中文字体与本地化支持
++ (BOOL)installsChineseDesktopSupport;
++ (void)setInstallsChineseDesktopSupport:(BOOL)enabled;
+
+/// Debian：宿主侧下载 .deb 的候选 base（有序，失败自动降级到下一个）。
+/// 每项含 base（主源，以 / 结尾）、security（安全更新源，以 / 结尾）、name。
++ (NSArray<NSDictionary<NSString *, NSString *> *> *)debianCandidates;
+/// Debian：写入客户机 /etc/apt/sources.list 的内容；nil 表示保持内置默认。
++ (nullable NSString *)debianSourcesList;
+/// Arch：宿主侧下载候选镜像（有序，以 /aarch64 结尾，与 fetch 的 "<repo>/<repo>.db" 拼接方式一致）
++ (NSArray<NSString *> *)archCandidates;
+/// Arch：写入客户机 /etc/pacman.d/mirrorlist 的内容；nil 表示保持打包默认。
++ (nullable NSString *)archMirrorlist;
+/// Alpine：写入客户机 /etc/apk/repositories 的行；nil 表示保持构建期默认。
++ (nullable NSArray<NSString *> *)alpineRepositories;
+
+/// /etc/resolv.conf 内容；nil 表示保持内置默认。
++ (nullable NSString *)resolvConf;
+/// /etc/default/locale（Debian）内容；nil 表示不写。
++ (nullable NSString *)defaultLocale;
+/// /etc/locale.conf（Arch）内容；nil 表示不写。
++ (nullable NSString *)localeConf;
+/// /etc/locale.gen 内容；nil 表示不写。
++ (nullable NSString *)localeGen;
+/// /etc/profile.d/linuxrunner-locale.sh 内容；nil 表示不写。
++ (nullable NSString *)localeProfile;
+/// /etc/timezone 内容；nil 表示不写。
++ (nullable NSString *)timezoneFile;
+@end
+
+@interface LRRuntimeBridge (LRMirrorSync)
+/// 把当前「软件源与本地化」设置同步到正在运行的 Linux 环境。
+/// 需要运行时已启动；只重写源/解析器/语言/时区配置。
++ (void)synchronizeMirrorSettings:(void (^)(NSError * _Nullable error))completion;
+@end
+
 extern NSNotificationName const LRInstallProgressNotification;
 NS_ASSUME_NONNULL_END

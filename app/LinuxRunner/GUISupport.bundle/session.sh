@@ -253,6 +253,12 @@ runtime_dir=$(mktemp -d /tmp/lr-runtime.XXXXXXXXXX) || { echo 'GUI_SESSION: runt
 chmod 700 "$runtime_dir"
 export XDG_RUNTIME_DIR="$runtime_dir"
 echo "GUI_SESSION: runtime_directory=$XDG_RUNTIME_DIR (short Unix socket namespace)"
+# LinuxRunner 本地化：若系统内已配置中文环境（由「软件源与本地化」设置写入），
+# 优先采用；否则回落到 C.UTF-8，保证任何情况下都是 UTF-8。
+for lr_locale_file in /etc/default/locale /etc/locale.conf /etc/profile.d/linuxrunner-locale.sh; do
+    [ -f "$lr_locale_file" ] && . "$lr_locale_file" 2>/dev/null
+done
+[ -n "${LC_ALL:-}" ] && export LC_ALL
 export SHELL="${SHELL:-/bin/sh}" LANG="${LANG:-C.UTF-8}"
 if [ "$mode" = desktop ]; then export XDG_CURRENT_DESKTOP=LXDE DESKTOP_SESSION=LinuxRunner; fi
 # Reusable session bus, when installed. This is not a systemd/system bus.
