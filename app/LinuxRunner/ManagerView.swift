@@ -45,7 +45,9 @@ import Darwin
             try persist()
         } catch { catalogWritable = false; self.error = error.localizedDescription }
         observers.append(NotificationCenter.default.addObserver(forName: NSNotification.Name("ProcessExitedNotification"), object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.refresh() }
+            // 先固定为不可变 let，避免并发闭包引用可变的 self（Swift 并发检查要求）。
+            let observer = self
+            Task { @MainActor in observer?.refresh() }
         })
         refresh()
     }
@@ -1335,7 +1337,9 @@ struct StorageManagementView: View {
             values["Total persistent container"] = StorageUsage.bytes(base)
             values["Bundled application"] = StorageUsage.bytes(Bundle.main.bundleURL)
             let available = try? base.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage
-            await MainActor.run { usage = values; free = available }
+            // values 在上方被反复修改，跨并发域传递前先固定为不可变快照。
+            let valuesSnapshot = values
+            await MainActor.run { usage = valuesSnapshot; free = available }
         }
     }
 }
